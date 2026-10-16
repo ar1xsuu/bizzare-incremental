@@ -194,15 +194,63 @@ button{touch-action:manipulation}
 .logo{width:min(94%,440px);height:auto;transform:none}
 @keyframes slam{0%{opacity:0;transform:scale(3)}60%{opacity:1;transform:scale(.94)}100%{transform:none}}
 @keyframes float{50%{transform:translateY(-8px)}}
+/* ===== v4: HUD, center menu, home, training, stand cards ===== */
+#title{background:radial-gradient(85% 55% at 50% 38%,#4b179655,#0008 62%,#000e),var(--argyle) 0 0/64px 88px,#2b1b36}
+#hud{justify-content:space-between;align-items:center;gap:8px}
+.me{display:flex;align-items:center;gap:8px;min-width:0;flex:1;background:none;border:0;text-align:left;cursor:pointer}
+.me .av{flex:none;width:42px;height:42px;display:grid;place-items:center;font:22px var(--hd);border:2px solid var(--gold);background:linear-gradient(135deg,var(--pur),#1a0a3a);transform:skewX(-6deg);box-shadow:0 0 12px #7b2cffaa}
+.me .mi{min-width:0;flex:1}.me b{display:block;font:15px var(--hd);letter-spacing:1px;text-shadow:1px 1px 0 #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me .bar{display:block;height:7px;margin:3px 0}.me small{color:var(--gold);font:12px var(--hd)}
+.cur{display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:none}
+.cur .chip{padding:2px 8px;font-size:12px;min-width:74px}.cur .chip:last-child{grid-column:1/-1}
+#nav{z-index:7;align-items:flex-end}
+#nav button{padding:8px 0 4px}
+.mw{flex:none;margin:-34px 6px 0;filter:drop-shadow(0 0 10px #f5c542cc)}
+#nav .mbtn{position:relative;display:grid;place-items:center;width:74px;height:74px;padding:0;border:0;background:linear-gradient(135deg,#ffe27a,#b9800f);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);cursor:pointer}
+.mbtn::before{content:"";position:absolute;inset:7px;clip-path:inherit;background:linear-gradient(#3a1a7a,#14062e)}
+.mbtn i{position:relative;font-style:normal;font-size:30px;transition:transform .5s cubic-bezier(.2,1.4,.4,1)}
+.mo .mbtn i{transform:rotate(360deg) scale(1.2)}
+#scrim{inset:0}
+#drop{top:auto;bottom:calc(88px + env(safe-area-inset-bottom,0px));grid-template-columns:repeat(3,1fr);clip-path:none;opacity:0;transform:translateY(30px) scale(.85);transform-origin:50% 100%;transition:opacity .25s,transform .35s cubic-bezier(.2,1.3,.4,1)}
+.mo #drop{opacity:1;transform:none;clip-path:none}
+@keyframes dIn{from{opacity:0;transform:translateY(80px) scale(.3) rotate(-20deg)}to{opacity:1;transform:skewX(-8deg)}}
+.hero{height:270px;border-bottom:0}.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;background:var(--gold);clip-path:polygon(0 70%,100% 0,100% 100%,0 100%)}
+.hbg{animation:kb 16s ease-in-out infinite alternate}@keyframes kb{to{transform:scale(1.12)}}
+.hshade{background:linear-gradient(#0000 60%,#07030fdd)}
+.hlogo{top:auto;bottom:14px;width:min(62%,250px)}
+.fstabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+.fs{flex:none;width:80px;padding:8px 4px;text-align:center;cursor:pointer;font:13px var(--hd);color:#fff;background:linear-gradient(#1b0f38,#0b0618);border:2px solid var(--line)}
+.fs i{display:block;font-style:normal;font-size:28px}.fs.on{border-color:var(--gold);box-shadow:var(--gg)}.fs.lock{opacity:.6;filter:grayscale(.6)}
+.zones{display:grid;gap:8px;margin-bottom:12px}
+.zn{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;cursor:pointer;color:#fff;font-size:14px;background:#000a;border:2px solid var(--line);text-align:left}
+.zn.on{border-color:var(--gold);background:#3a1a7a99}.zn.lock{opacity:.5}
+#trainbtn{display:block;width:100%;padding:22px 10px;font:36px var(--hd);letter-spacing:2px;color:#2a1500;cursor:pointer;background:linear-gradient(#ffe27a,#e0a319);border:3px solid #fff3b0;box-shadow:0 6px 0 #7a4c00,0 0 24px #f5c54288;transform:skewX(-8deg);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+#trainbtn:active{transform:skewX(-8deg) translateY(4px);box-shadow:0 2px 0 #7a4c00}
+.combo{font:20px var(--hd);color:var(--gold);text-align:center;height:26px}
+.fl2{position:absolute;z-index:30;pointer-events:none;font:700 16px system-ui;color:#ffe27a;text-shadow:0 1px 3px #000,0 0 8px #7b2cff;transform:translateX(-50%);animation:fl2 .8s ease-out forwards}
+@keyframes fl2{to{transform:translate(-50%,-60px);opacity:0}}
+.cstrip{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 10px;margin-bottom:6px}
+.mc{flex:none;width:88px;scroll-snap-align:start;padding:0 0 4px;cursor:pointer;color:#fff;font:12px var(--hd);text-align:center;background:#0b0618;border:2px solid var(--line)}
+.mc .cart{height:92px;font-size:38px}.mc.on{border-color:var(--gold);box-shadow:var(--gg)}.mc.lock{filter:grayscale(1) brightness(.6)}
+.card{position:relative;margin-bottom:14px;padding:7px;background:linear-gradient(145deg,#f5c542,#8a5d08 40%,#f5c542 70%,#6b4506);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
+.card .in{position:relative;padding:10px;background:linear-gradient(#1d0e40,#080414)}
+.cart{position:relative;height:230px;display:grid;place-items:center;overflow:hidden;font-size:84px;background:radial-gradient(#7b2cff,#14062e)}
+.cart img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,#ffffff40 50%,transparent 65%);transform:translateX(-120%);animation:holo 3.5s infinite}
+@keyframes holo{to{transform:translateX(120%)}}
+.rar{position:absolute;top:6px;right:6px;z-index:2;padding:0 10px;font:16px var(--hd);color:#2a1500;background:var(--gold);transform:skewX(-10deg)}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:8px 0;font-size:12px}.sg .bar{height:8px;margin-top:2px}
 </style>
 </head>
 <body>
 <div id="app">
   <header id="hud">
-    <div class="chip"><i class="coin"></i><span id="coins">0</span></div>
-    <div class="chip"><i class="gem">◆</i><span id="gems">0</span></div>
-    <div class="chip"><i class="sta">⚡</i><span id="sta">0/0</span></div>
-    <button id="burger" data-menu="1" aria-label="Menu" aria-expanded="false"><i></i><i></i><i></i></button>
+    <button class="me" data-go="character" aria-label="Profile"><span class="av">J</span><span class="mi"><b id="hname">Joestar</b><span class="bar"><i id="hxp-f"></i></span><small id="hlv">Lv. 1</small></span></button>
+    <div class="cur">
+      <div class="chip"><i class="coin"></i><span id="coins">0</span></div>
+      <div class="chip"><i class="gem">◆</i><span id="gems">0</span></div>
+      <div class="chip"><i class="sta">⚡</i><span id="sta">0/0</span></div>
+    </div>
   </header>
   <main id="view"></main>
   <nav id="nav"></nav>
@@ -226,19 +274,19 @@ button{touch-action:manipulation}
 <script>
 /* ============ CONFIG ============
    Drop image URLs here later (e.g. 'assets/star-platinum.png'). Empty = gradient placeholder. */
-const ART={player:'',stand:'',logo:'assets/logo.png',banner:'https://media1.tenor.com/m/tTckanekc1MAAAAC/jojo-banner.gif'};
+const ART={player:'',stand:'',logo:'assets/logo.png',banner:'assets/banner.gif'};
 
 /* ============ SAVE (localStorage now, Supabase later) ============ */
-const KEY='bizzare_save_v1',mem={};
+const KEY='bizzare_save_v2',mem={};
 const store={
   get:k=>{try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},
   set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},
   del:k=>{try{localStorage.removeItem(k)}catch(e){delete mem[k]}}
 };
 const fresh=()=>({name:'Joestar',lv:1,xp:0,xpMax:100,coins:100,gems:50,sta:5,staMax:5,
-  path:'Stand User',stand:{name:'Star Platinum',lv:1,xp:0,xpMax:50,evo:false},sel:'hamon',tab:'skills',sk:{ora:1,time:1,finger:1},
+  path:'Stand User',stand:{name:'Star Platinum',lv:1,xp:0,xpMax:50,evo:false},sel:'boxing',tab:'skills',sk:{ora:1,time:1,finger:1},
   sty:{hamon:{lv:1,xp:0},spin:{lv:1,xp:0},boxing:{lv:1,xp:0}},inv:{'Stand Arrow':3,'Stone Mask':1,'Steel Ball':1,'Roka Fruit':2},
-  cnt:{train:0,up:0},qd:{},qt:'active',it:'Stand Arrow',rb:0,cl:0,wk:0,sr:0,xt:'stands',xi:'0',
+  cnt:{train:0,up:0},qd:{},qt:'active',it:'Stand Arrow',rb:0,cl:0,wk:0,sr:0,xt:'stands',xi:'0',fu:{boxing:1},auto:{},zn:{},sc:'0',
   story:{part:'Part 1: The Mysterious Arrow',ch:'Chapter 1 · Arrive at the Mansion'},t:Date.now()});
 let S;try{S={...fresh(),...JSON.parse(store.get(KEY))}}catch(e){S=fresh()}
 const save=()=>{S.t=Date.now();store.set(KEY,JSON.stringify(S))};
@@ -252,7 +300,9 @@ const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearT
 
 /* ============ GAME LOOP (passive growth) ============ */
 function tick(n){
-  const m=mult();S.coins+=Math.floor((2+S.lv*1.5)*m.gold*n);S.xp+=2*m.xp*n;S.stand.xp+=m.xp*n;
+  const m=mult();S.coins+=Math.floor((2+S.lv*1.5)*m.gold*n);S.xp+=2*m.xp*n;if(S.fu.stand)S.stand.xp+=m.xp*n;
+  for(const k in S.auto)if(S.auto[k]&&S.fu[k])SD2(k).xp+=repXp(k)*.4*n;
+  for(const k in S.sty){const d=S.sty[k];while(d.xp>=xpNeed(d.lv)){d.xp-=xpNeed(d.lv);d.lv++}}
   S.sr=(S.sr||0)+n;while(S.sr>=60&&S.sta<S.staMax){S.sta++;S.sr-=60}if(S.sta>=S.staMax)S.sr=0; // energy: +1 per minute
   while(S.xp>=S.xpMax){S.xp-=S.xpMax;S.lv++;S.xpMax=Math.floor(S.xpMax*1.25+20)}
   while(S.stand.xp>=S.stand.xpMax){S.stand.xp-=S.stand.xpMax;S.stand.lv++;S.stand.xpMax=Math.floor(S.stand.xpMax*1.3+15)}
@@ -280,7 +330,7 @@ const xpNeed=l=>Math.floor(60*1.35**(l-1));
 const trainCost=k=>Math.floor(25*1.18**S.sty[k].lv);
 const skCost=id=>Math.floor(SD().sk.find(x=>x[0]===id)[3]*1.6**(S.sk[id]-1));
 function stats(){
-  const b=[0,0,0];for(const k in STYLES)STYLES[k].b.forEach((v,i)=>b[i]+=v*S.sty[k].lv);
+  const b=[0,0,0];for(const k in STYLES)if(S.fu[k])STYLES[k].b.forEach((v,i)=>b[i]+=v*S.sty[k].lv);
   const sk=Object.values(S.sk).reduce((a,c)=>a+c,0),ev=S.stand.evo?1.5:1;
   return{b,Health:100+S.lv*20,Attack:Math.floor((20+S.lv*6+sk*4)*ev*(1+b[0]/100)),
     Defense:Math.floor((15+S.lv*4)*(1+b[1]/100)),Stamina:Math.floor((30+S.lv*3)*(1+b[2]/100))}}
@@ -300,7 +350,7 @@ const QUESTS=[ // k = progress key, g = goal
   {id:'m1',t:'main',n:'Investigate the Mansion',d:'Reach Lv. 3 and enter the mansion.',k:'lv',g:3,gold:300,it:{'Stand Arrow':1}},
   {id:'m2',t:'main',n:'Defeat the Bandit Leader',d:'Raise your Stand to Lv. 3.',k:'sl',g:3,gold:1500,it:{'Mysterious Coin':2}},
   {id:'m3',t:'main',n:'Awaken the Mask',d:'Raise your Stand to Lv. 5.',k:'sl',g:5,gold:4000,it:{'Stone Mask':1}},
-  {id:'s1',t:'side',n:'Daily Discipline',d:'Train 5 times.',k:'train',g:5,gold:200,it:{'Hamon Manual':1}},
+  {id:'s1',t:'side',n:'Daily Discipline',d:'Complete 50 training reps.',k:'train',g:50,gold:200,it:{'Hamon Manual':1}},
   {id:'s2',t:'side',n:'Sharpen Your Skills',d:'Upgrade Stand skills 3 times.',k:'up',g:3,gold:400,it:{'Steel Ball':1}},
   {id:'s3',t:'side',n:'Rising Legend',d:'Reach Lv. 10.',k:'lv',g:10,gold:2500,it:{'Roka Fruit':2},gem:25}
 ];
@@ -338,7 +388,7 @@ const INDEX={ // [icon, name, subtitle, description, owned?]
 };
 
 /* ============ VIEWS ============ */
-const TABS=[['home','🏠','Home'],['training','🥊','Training'],['stand','⭐','Stand'],['quests','📜','Quests'],['inventory','🎒','Bag']];
+const TABS=[['home','🏠','Home'],['training','🥊','Train'],['*menu','🏹','Menu'],['quests','⚔️','Adventure'],['shop','🛒','Shop']];
 const STUBS={
   character:['CHARACTER','Stats, race and the path you have chosen.'],
   inventory:['INVENTORY','Stand Arrows, Stone Masks, Steel Balls and more.'],
@@ -429,68 +479,80 @@ Object.assign(VIEWS,{
 const stub=k=>{const[t,d]=STUBS[k]||[k.toUpperCase(),''];
   return `<h2 class="banner">${t}</h2><div class="panel stub"><div class="menace" aria-hidden="true">ゴゴゴ</div><p>${d}</p><p class="mut">Under construction. Coming in a later build.</p></div>`};
 
-/* ============ DROPDOWN MENU ============ */
-const MENU=[['character','👤','Character'],['index','📖','Index'],['events','🏇','Events'],['rebirth','🌌','Rebirth'],['settings','⚙️','Settings'],['*title','🏠','Title']];
-function toggleMenu(f){const a=$('#app'),o=f===undefined?!a.classList.contains('mo'):f;a.classList.toggle('mo',o);$('#burger').setAttribute('aria-expanded',o);
-  if(o)$('#drop').innerHTML=MENU.map(([k,i,l],n)=>`<button class="dbtn ${cur===k?'on':''}" style="--i:${n}" ${k[0]==='*'?`data-act="${k.slice(1)}"`:`data-go="${k}"`}><i>${i}</i>${l}</button>`).join('')}
+/* ============ MENU (center arrow button) ============ */
+const MENU2=[['character','👤','Profile'],['stand','⭐','Stands'],['inventory','🎒','Inventory'],['index','📖','Index'],['events','🏇','Events'],['rebirth','🌌','Rebirth'],['settings','⚙️','Settings'],['*title','🏠','Title']];
+const navHtml=()=>TABS.map(([id,ic,l])=>id[0]==='*'?`<span class="mw"><button class="mbtn" data-menu="1" aria-label="Menu" aria-expanded="false"><i>${ic}</i></button></span>`:`<button data-go="${id}"><i>${ic}</i>${l}</button>`).join('');
+function toggleMenu(f){const a=$('#app'),o=f===undefined?!a.classList.contains('mo'):f;a.classList.toggle('mo',o);const m=$('.mbtn');m&&m.setAttribute('aria-expanded',o);
+  if(o)$('#drop').innerHTML=MENU2.map(([k,i,l],n)=>`<button class="dbtn ${cur===k?'on':''}" style="--i:${n}" ${k[0]==='*'?`data-act="${k.slice(1)}"`:`data-go="${k}"`}><i>${i}</i>${l}</button>`).join('')}
 
-/* ============ HOME + HERO ============ */
+/* ============ HOME ============ */
 const hero=(cls,inner)=>`<div class="hero ${cls}"><img class="hbg" src="${ART.banner}" alt="" onerror="this.remove()"><div class="hshade"></div>${inner}</div>`;
-VIEWS.home=()=>{const q=QUESTS.filter(x=>!S.qd[x.id]&&PROG[x.k]()>=x.g).length;
-  return hero('',`<img class="hlogo" src="${ART.logo}" alt="Bizzare Incremental" onerror="this.remove()">
-  <div class="panel prof hcard"><div class="portrait" ${art('player')}>J</div><div class="grow"><b class="name">${S.name}</b> <span id="lv" class="gold hd">Lv. ${S.lv}</span>${bar('xp',S.xp,S.xpMax)}</div></div>`)+`
+VIEWS.home=()=>{const k=S.sel,f=FS[k],d=SD2(k),q=QUESTS.filter(x=>!S.qd[x.id]&&PROG[x.k]()>=x.g).length;
+  return hero('',`<img class="hlogo" src="${ART.logo}" alt="Bizzare Incremental" onerror="this.remove()">`)+`
   <div class="rates"><span id="r-g"></span><span id="r-x"></span><span>🔁 Rebirth ${S.rb}</span></div>
-  <div class="panel story"><h3>Main Story · ${S.story.part}</h3><div class="name gold">${chap()}</div><button class="btn gold wide" data-go="quests">CONTINUE</button></div>
-  <div class="grid">${[['training','🥊','Training','Mini-games'],['stand','⭐','Stand','Lv. '+S.stand.lv],['quests','📜','Quests',q?q+' ready!':'Missions'],['events','🏇','Steel Ball Run','Weekly race']].map(([g,i,n,sub])=>`<button class="slot" data-go="${g}"><i>${i}</i>${n}<small>${sub}</small></button>`).join('')}</div>
-  <div class="panel"><h3>Current Path · ${S.path} ✪</h3><div class="prof"><div class="portrait" ${art('stand')}>⭐</div><div class="grow"><div>${S.stand.name} <span id="slv" class="gold hd">Lv. ${S.stand.lv}</span></div>${bar('sxp',S.stand.xp,S.stand.xpMax)}</div><button class="btn sm" data-go="stand">View</button></div></div>`};
+  <div class="panel story"><h3>Main Story · ${S.story.part}</h3><div class="name gold">${chap()}</div><button class="btn gold wide" data-go="quests">⚔️ CONTINUE ADVENTURE</button></div>
+  <div class="panel"><h3>Training</h3><div class="prof"><div class="portrait">${f.ic}</div><div class="grow"><b class="name">${f.n}</b> <span class="gold hd">${S.fu[k]?'Lv. '+d.lv:'🔒 Locked'}</span>${bar('hx',d.xp,need(k))}</div></div><button class="btn wide" data-go="training">GO TRAIN</button></div>
+  <div class="panel story"><h3>Limited-Time Event</h3><div class="name gold">Steel Ball Run</div><p class="mut">Weekly race · ${S.cl}/5 stages cleared</p><button class="btn wide" data-go="events">ENTER EVENT</button></div>
+  ${q?`<button class="btn gold wide" data-go="quests">🎁 ${q} QUEST REWARD${q>1?'S':''} READY</button>`:''}`};
 
-/* ============ TRAINING MINI-GAMES ============ */
-const TG={hamon:['Breathing Rhythm','Tap when the marker crosses the sun zone. It speeds up each round.'],
-  spin:['Golden Rotation','Stop the spinning needle inside the golden arc.'],
-  boxing:['Counter Punch','Wait for the flash, then punch as fast as you can. Don\'t jump the gun!'],
-  stand:['Stand Sync','Watch the Stand pose sequence, then repeat it to sync with your inner self.']};
-const PADS=['⭐','🕰️','🌹','💎'];
-let G=null,raf=0;
-const play=h=>{const e=$('#play');if(e)e.innerHTML=h};
-const bon=k=>STYLES[k].b.map((v,i)=>`+${(v*S.sty[k].lv).toFixed(1)}% ${BONUS[i]}`).join(' · ');
-VIEWS.training=()=>{const k=TG[S.sel]?S.sel:'hamon',st=k==='stand',d=st?S.stand:S.sty[k],mx=st?d.xpMax:xpNeed(d.lv);S.sel=k;
-  return hero('slim','<h2 class="banner hbn">TRAINING</h2>')+`
-  <div class="tabs">${Object.keys(TG).map(x=>`<button class="tab ${x===k?'on':''}" data-sel="${x}">${x==='stand'?'⭐<br>Sync':STYLES[x].ic+'<br>'+STYLES[x].n}</button>`).join('')}</div>
-  <div class="panel"><div class="prof"><div class="portrait">${st?'⭐':STYLES[k].ic}</div><div class="grow"><b class="name">${st?S.stand.name:STYLES[k].n}</b> <span id="tl" class="gold hd">Lv. ${d.lv}</span>${bar('tx',d.xp,mx)}</div></div>
-  <p class="mut" id="tb">${st?'Raises your Stand level and unlocks evolution.':bon(k)}</p></div>
-  <div class="panel play" id="play"><h3>${TG[k][0]}</h3><p class="mut">${TG[k][1]}</p><button class="btn gold wide" data-act="tstart">START TRAINING</button></div>`};
-const tgHead=()=>`<div class="tg-top"><b>Round ${G.r}/${G.n}</b><span class="gold">${G.sc} pts</span><span>${G.cb>1?'🔥 x'+G.cb:''}</span></div>`;
-function tgStart(){if(G)clearTimeout(G.to);cancelAnimationFrame(raf);G={k:S.sel,r:0,n:S.sel==='stand'?4:5,sc:0,cb:0,res:0};tgNext()}
-function tgNext(){if(!G)return;if(G.r>=G.n)return tgEnd();G.r++;G.res=0;const k=G.k;
-  if(k==='hamon'||k==='spin')return tmRound(k==='spin',Math.max(.05,.17-S.sty[k].lv*.004));
-  k==='boxing'?rxRound():sqRound()}
-function tmRound(dial,w){const c=dial?Math.random():.2+Math.random()*.6,sp=.7+G.r*.2,t0=performance.now(),a=(c-w)*360,b=w*720;
-  Object.assign(G,{c,w,dial,live:1,p:0});
-  play(`${tgHead()}${dial?`<div class="dial" style="background:conic-gradient(from ${a}deg,#f5c542 ${b}deg,transparent ${b}deg),radial-gradient(#1a0d3a,#05020b)"><i class="nd" id="mk"></i></div>`
-    :`<div class="tbar"><i class="zone" style="left:${(c-w)*100}%;width:${w*200}%"></i><i class="mk" id="mk"></i></div>`}<button class="btn gold wide" data-act="tap">${dial?'STOP!':'BREATHE!'}</button>`);
-  (function f(now){if(!G||!G.live)return;const x=(now-t0)/1000*sp;G.p=dial?x%1:1-Math.abs(x%2-1);
-    const m=$('#mk');if(m)dial?m.style.transform=`rotate(${G.p*360}deg)`:m.style.left=G.p*100+'%';raf=requestAnimationFrame(f)})(t0)}
-function rxRound(){G.live=0;play(`${tgHead()}<div class="rx" id="rx">READY...</div><button class="btn wide" data-act="tap">PUNCH!</button>`);
-  G.to=setTimeout(()=>{if(!G)return;G.go=performance.now();G.live=1;const e=$('#rx');if(e){e.textContent='NOW!';e.className='rx go'}},900+Math.random()*1800)}
-function lit(i){const b=document.querySelector(`.pad[data-pad="${i}"]`);if(b){b.classList.add('lit');setTimeout(()=>b.classList.remove('lit'),300)}}
-function sqRound(){const L=G.r+2,g=G;Object.assign(G,{seq:Array.from({length:L},()=>Math.random()*4|0),inp:[],res:1});
-  play(`${tgHead()}<div class="rx" id="rx">WATCH...</div><div class="pads">${PADS.map((p,i)=>`<button class="pad" data-pad="${i}">${p}</button>`).join('')}</div>`);
-  g.seq.forEach((v,i)=>setTimeout(()=>G===g&&lit(v),700+i*600));
-  g.to=setTimeout(()=>{if(G!==g)return;g.res=0;const e=$('#rx');if(e){e.textContent='YOUR TURN!';e.className='rx go'}},700+L*600)}
-function rate(q,m){G.cb=q?G.cb+1:0;G.sc+=q+(q&&G.cb>2?1:0);
-  $('#play').insertAdjacentHTML('beforeend',`<div class="tg-msg q${q}">${m||['MISS...','GOOD!','PERFECT!!'][q]}</div>`);G.to=setTimeout(tgNext,850)}
-function tap(){if(!G||G.res||G.k==='stand')return;G.res=1;let q,m;
-  if(G.k==='boxing'){if(!G.live){clearTimeout(G.to);q=0;m='TOO EARLY!'}else{const t=performance.now()-G.go;q=t<280?2:t<450?1:0;m=Math.round(t)+' ms'}}
-  else{G.live=0;cancelAnimationFrame(raf);let d=Math.abs(G.p-G.c);if(G.dial)d=Math.min(d,1-d);q=d<=G.w/3?2:d<=G.w?1:0}
-  rate(q,m)}
-function pad(i){if(!G||G.k!=='stand'||G.res)return;lit(i);G.inp.push(i);const n=G.inp.length;
-  if(i!==G.seq[n-1]){G.res=1;rate(0,'WRONG!')}else if(n===G.seq.length){G.res=1;rate(2,'SYNCED!')}}
-function tgEnd(){const k=G.k,st=k==='stand',gr=Math.min(1,G.sc/10),d=st?S.stand:S.sty[k],lv=d.lv,need=st?d.xpMax:xpNeed(lv),
-    xp=Math.max(1,Math.round(need*.2*(.25+1.25*gr))),rk=gr>=.95?'S':gr>=.7?'A':gr>=.4?'B':'C';
-  d.xp+=xp;S.cnt.train++;norm();if(d.lv>lv)bigFx((st?S.stand.name:STYLES[k].n)+'\nLv. '+d.lv);G=null;
-  play(`<div class="rank r${rk}">${rk}</div><p class="gold name">+${fmt(xp)} ${st?'Stand':STYLES[k].n} EXP</p><button class="btn gold wide" data-act="tstart">TRAIN AGAIN</button>`);
-  const mx=st?d.xpMax:xpNeed(d.lv),f=$('#tx-f');if(f){f.style.width=Math.min(100,d.xp/mx*100)+'%';$('#tx-t').textContent=fmt(d.xp)+' / '+fmt(mx);$('#tl').textContent='Lv. '+d.lv;if(!st)$('#tb').textContent=bon(k)}}
-document.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-act=tap],[data-pad]');if(!b)return;e.preventDefault();b.dataset.pad!==undefined?pad(+b.dataset.pad):tap()});
+/* ============ TRAINING (unlockable fighting styles) ============ */
+const FS={boxing:STYLES.boxing,hamon:STYLES.hamon,spin:STYLES.spin,stand:{n:'Stand',ic:'⭐',d:'Awaken the spirit within and train your Stand.',b:[0,0,0]}};
+const ZN={boxing:['Punching Bag','Sparring Ring','Fight Club'],hamon:['Breathing Drills','Waterfall','Sunlit Peak'],spin:['Ball Spinning','Horse Riding','Canyon Run'],stand:['Inner Focus','Spirit Sync','Awakening']},ZR=[1,5,12],ZM=[1,3,9];
+const UNLOCK={hamon:{lv:3,reps:60,item:'Hamon Manual'},spin:{lv:6,reps:150,item:'Steel Ball',st:['boxing',4]},stand:{lv:3,reps:30,item:'Stand Arrow'}};
+const SD2=k=>k==='stand'?S.stand:S.sty[k],need=k=>k==='stand'?S.stand.xpMax:xpNeed(S.sty[k].lv);
+const zi=k=>S.zn[k]||0,repXp=k=>Math.ceil((3+SD2(k).lv*1.2)*ZM[zi(k)]);
+const bon2=k=>FS[k].b.map((v,i)=>`+${(v*S.sty[k].lv).toFixed(1)}% ${BONUS[i]}`).join(' · ');
+const reqs=k=>{const u=UNLOCK[k];return[[`Player Lv. ${u.lv} (now ${S.lv})`,S.lv>=u.lv],[`${u.reps} training reps (now ${S.cnt.train})`,S.cnt.train>=u.reps],[`${u.item} x1`,(S.inv[u.item]||0)>0],...(u.st?[[`${FS[u.st[0]].n} Lv. ${u.st[1]}`,S.sty[u.st[0]].lv>=u.st[1]]]:[])]};
+VIEWS.training=()=>{const k=FS[S.sel]?S.sel:'boxing',f=FS[k],d=SD2(k);S.sel=k;
+  const tabs=Object.keys(FS).map(x=>`<button class="fs ${x===k?'on':''} ${S.fu[x]?'':'lock'}" data-sel="${x}"><i>${S.fu[x]?FS[x].ic:'🔒'}</i>${FS[x].n}</button>`).join('');
+  const body=!S.fu[k]?`<div class="panel"><h3>Locked · Special Training</h3><p>${f.d}</p>${reqs(k).map(([t,o])=>`<p class="${o?'ok':'no'}">${o?'✔':'✘'} ${t}</p>`).join('')}
+    <button class="btn gold wide" data-act="unlock" ${reqs(k).every(r=>r[1])?'':'disabled'}>UNLOCK ${f.n.toUpperCase()}</button>
+    <p class="mut" style="margin-top:8px">Train Boxing to earn reps and levels. Find items in quests or the shop.</p></div>`
+  :`<div class="panel"><div class="prof"><div class="portrait">${f.ic}</div><div class="grow"><b class="name">${f.n}</b> <span id="tl" class="gold hd">Lv. ${d.lv}</span>${bar('tx',d.xp,need(k))}</div></div>
+    <p class="mut">${k==='stand'?'Raises your Stand level and unlocks evolution.':bon2(k)}</p></div>
+    <div class="zones">${ZN[k].map((z,i)=>`<button class="zn ${i===zi(k)?'on':''} ${d.lv>=ZR[i]?'':'lock'}" data-zone="${i}"><b>${z}</b><span class="gold">${d.lv>=ZR[i]?'x'+ZM[i]+' EXP':'Lv. '+ZR[i]}</span></button>`).join('')}</div>
+    <div class="combo" id="cb"></div><button id="trainbtn">TRAIN!</button>
+    <p class="mut" style="text-align:center;margin:8px 0">Tap or hold. Chain taps for a combo bonus.</p>
+    <button class="btn wide" data-act="auto">AUTO-TRAIN: ${S.auto[k]?'ON':d.lv>=3?'OFF':'unlocks at Lv. 3'}</button>`;
+  return hero('slim','<h2 class="banner hbn">TRAINING</h2>')+`<div class="fstabs">${tabs}</div>${body}`};
+let HT=0,CB=0,LT=0;
+const stopTrain=()=>clearInterval(HT);
+function rep(x,y){const k=S.sel;if(!S.fu[k]||cur!=='training')return;const now=Date.now(),pl=S.lv;CB=now-LT<700?CB+1:1;LT=now;
+  const m=1+Math.min(CB,40)/20,d=SD2(k),lv=d.lv,g=Math.ceil(repXp(k)*m);d.xp+=g;S.xp+=Math.max(1,g>>2);S.cnt.train++;norm();
+  if(d.lv>lv)bigFx(FS[k].n+'\nLv. '+d.lv);else if(S.lv>pl)toast('Player Lv. '+S.lv+'!');tpaint(g,m,x,y)}
+function tpaint(g,m,x,y){const k=S.sel,d=SD2(k),mx=need(k),f=$('#tx-f');if(!f)return;
+  f.style.width=Math.min(100,d.xp/mx*100)+'%';$('#tx-t').textContent=fmt(d.xp)+' / '+fmt(mx);$('#tl').textContent='Lv. '+d.lv;
+  if(m){$('#cb').textContent=CB>1?`🔥 COMBO x${CB} · +${Math.round((m-1)*100)}% EXP`:'';if(x!==undefined&&!RM)put('fl2','+'+fmt(g),x+Math.random()*40-20,y-30,800)}}
+setInterval(()=>{if(CB&&Date.now()-LT>900){CB=0;const c=$('#cb');if(c)c.textContent=''}},300);
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#trainbtn'))return;e.preventDefault();rep(e.clientX,e.clientY);clearInterval(HT);HT=setInterval(()=>rep(e.clientX,e.clientY),150)});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>clearInterval(HT)));
+document.addEventListener('contextmenu',e=>{if(e.target.closest('#trainbtn'))e.preventDefault()});
+function hud(){const l=$('#hlv');if(!l)return;l.textContent='Lv. '+S.lv;$('#hname').textContent=S.name;$('#hxp-f').style.width=Math.min(100,S.xp/S.xpMax*100)+'%';if(cur==='training')tpaint()}
+
+/* ============ STAND CARDS ============ */
+const slug=n=>n.toLowerCase().replace(/[^a-z0-9]+/g,'-'),GR={A:100,B:80,C:60,D:40,E:20},SN=['Power','Speed','Range','Durability','Precision','Potential'];
+const SPAB=[['Ora Ora Rush','A flurry of punches. 150% damage.','ora'],['Star Finger','Precision strike. 200% damage.','finger'],['Time Stop','Stops time for 3 seconds.','time']];
+const CARDS=[ // st = Power, Speed, Range, Durability, Precision, Potential
+ {n:'Star Platinum',u:'Jotaro Kujo',ic:'⭐',p:'Part 3',r:'SSR',st:'AACAAA',d:'A close-range powerhouse with incredible speed and precision.',ab:SPAB,o:()=>S.fu.stand},
+ {n:'Star Platinum: The World',u:'Jotaro Kujo',ic:'🌟',p:'Part 6',r:'UR',st:'AACAAA',d:'Star Platinum at full power, mastering the stopping of time.',ab:SPAB,o:()=>S.stand.evo},
+ {n:'The World',u:'Dio Brando',ic:'🕰️',p:'Part 3',r:'SSR',st:'AACABB',d:'A close-range Stand that can stop time.',ab:[['Muda Muda Rush','A barrage of punches.'],['Time Stop','Stops time.']],o:()=>0},
+ {n:'Golden Experience',u:'Giorno Giovanna',ic:'🌹',p:'Part 5',r:'SR',st:'CABCAA',d:'Gives life to whatever it touches.',ab:[['Life Giver','Turns objects into living things.'],['Muda Muda Rush','A flurry of punches.']],o:()=>0},
+ {n:'Crazy Diamond',u:'Josuke Higashikata',ic:'💎',p:'Part 4',r:'SR',st:'AADBBC',d:'Restores anything it hits to its original state.',ab:[['Restoration','Repairs objects and heals wounds.'],['Dora Dora Rush','A flurry of punches.']],o:()=>0},
+ {n:'Killer Queen',u:'Yoshikage Kira',ic:'👑',p:'Part 4',r:'SR',st:'ABCACD',d:'Turns anything it touches into a bomb.',ab:[['Primary Bomb','Turns a touched object into a bomb.'],['Sheer Heart Attack','An autonomous heat-seeking bomb.']],o:()=>0}];
+const artImg=n=>`<img src="assets/stands/${slug(n)}.gif" alt="" onerror="this.onerror=function(){this.remove()};this.src='assets/stands/${slug(n)}.png'">`;
+const abil=(c,up)=>c.ab.map(([n,d,id])=>`<div class="prof" style="margin-bottom:6px"><div class="grow"><b>${n}</b>${up&&id?` <span class="gold hd">Lv. ${S.sk[id]}</span>`:''}<div class="mut">${d}</div></div>${up&&id?`<button class="btn sm" data-up="${id}">Upgrade<br>${fmt(skCost(id))}</button>`:''}</div>`).join('');
+VIEWS.stand=()=>{const i=Math.min(+S.sc||0,CARDS.length-1),c=CARDS[i],own=c.o(),live=own&&c.n===S.stand.name,e=SD().evo,l=S.stand.lv>=e.lv,it=(S.inv[e.item]||0)>0;
+  return `<h2 class="banner">STANDS</h2><div class="cstrip">${CARDS.map((x,j)=>`<button class="mc ${j===i?'on':''} ${x.o()?'':'lock'}" data-set="sc:${j}"><div class="cart">${x.ic}${artImg(x.n)}</div>${x.n.replace('Star Platinum: ','SP: ')}</button>`).join('')}</div>
+  <div class="card"><div class="in"><div class="cart">${c.ic}${artImg(c.n)}<span class="rar">${c.r}</span></div>
+   <h2 class="name gold" style="font-size:24px;margin-top:8px;font-weight:400">${c.n}</h2><div class="mut">User: ${c.u} · ${c.p}${live?` · Lv. ${S.stand.lv}`:''}</div><p style="margin:6px 0">${c.d}</p>
+   <div class="sg">${[...c.st].map((g,j)=>`<div>${SN[j]} <b class="gold">${g}</b><div class="bar"><i style="width:${GR[g]}%"></i></div></div>`).join('')}</div>
+   <h3 style="margin:8px 0 4px;font-weight:400" class="hd gold">ABILITIES</h3>${abil(c,live)}${own?'':'<p class="no">🔒 Locked. Unlock the Stand style in Training.</p>'}</div></div>
+  ${live&&c.n==='Star Platinum'&&!S.stand.evo?`<div class="panel"><h3>Evolution</h3><p class="gold name">→ ${e.to}</p><p class="${l?'ok':'no'}">${l?'✔':'✘'} Stand Lv. ${e.lv} (now ${S.stand.lv})</p><p class="${it?'ok':'no'}">${it?'✔':'✘'} ${e.item} x1</p><button class="btn gold wide" data-act="evolve" ${l&&it?'':'disabled'}>EVOLVE</button></div>`:''}`};
+
+/* ============ SHOP ============ */
+const SHOP=[['Stand Arrow',0,40],['Stone Mask',0,60],['Roka Fruit',800,0],['Hamon Manual',1500,0],['Steel Ball',2500,0],['Mysterious Coin',0,10]];
+VIEWS.shop=()=>`<h2 class="banner">SHOP</h2>${SHOP.map(([n,g,m],i)=>`<div class="panel prof"><div class="portrait">${ITEMS[n][0]}</div><div class="grow"><b>${n}</b><div class="mut">${ITEMS[n][1]}</div><small class="gold">${g?'🪙 '+fmt(g):''}${m?'◆ '+m:''} · owned ${S.inv[n]||0}</small></div><button class="btn sm" data-buy="${i}">Buy</button></div>`).join('')}`;
+function buy(i){const[n,g,m]=SHOP[+i];if(S.coins<g||S.gems<m)return toast('Not enough '+(S.coins<g?'gold':'gems')+'!');S.coins-=g;S.gems-=m;S.inv[n]=(S.inv[n]||0)+1;toast('Bought '+n+'!');go(cur,1)}
 
 /* ============ EFFECTS ============ */
 const RM=matchMedia('(prefers-reduced-motion:reduce)').matches,P={c:S.coins},SFX={tstart:'ORA!',train:'ORA!',evolve:'ドドド!',race:'ZOOM!',rebirth:'ゴゴゴ'};
@@ -518,14 +580,14 @@ function setT(id,t,bump){const e=$(id);if(e.textContent===t)return;e.textContent
 /* ============ ROUTER ============ */
 let cur='home';
 function go(id,keep){
-  clearTimeout(G&&G.to);cancelAnimationFrame(raf);G=null;cur=id;$('#title').classList.add('hide');
+  stopTrain();cur=id;$('#title').classList.add('hide');
   const v=$('#view');v.innerHTML=(VIEWS[id]||(()=>stub(id)))();if(keep)v.classList.remove('enter');else{v.scrollTop=0;S.arm=0;v.classList.remove('enter');void v.offsetWidth;[...v.children].forEach((c,i)=>c.style.setProperty('--i',i));v.classList.add('enter')}
   const tab=TABS.some(t=>t[0]===id)?id:'menu';
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===tab));
   paint();
 }
 function paint(){
-  setT('#coins',fmt(S.coins),S.coins<P.c||S.coins-P.c>Math.max(60,RATE*3));setT('#gems',fmt(S.gems),1);setT('#sta',S.sta+'/'+S.staMax,1);P.c=S.coins;
+  setT('#coins',fmt(S.coins),S.coins<P.c||S.coins-P.c>Math.max(60,RATE*3));setT('#gems',fmt(S.gems),1);setT('#sta',S.sta+'/'+S.staMax,1);P.c=S.coins;hud();
   const nb=QUESTS.filter(q=>!S.qd[q.id]&&PROG[q.k]()>=q.g).length,qb=$('#nav [data-go=quests]');if(qb){nb?qb.dataset.badge=nb:delete qb.dataset.badge}
   const m=mult(),rg=$('#r-g');if(rg){rg.textContent='🪙 +'+fmt((2+S.lv*1.5)*m.gold)+'/s';$('#r-x').textContent='✨ +'+fmt(2*m.xp)+' EXP/s'}
   [['xp',S.xp,S.xpMax],['sxp',S.stand.xp,S.stand.xpMax]].forEach(([k,v,m])=>{
@@ -536,7 +598,8 @@ function paint(){
 /* ============ EVENTS ============ */
 const ACTS={
   start:()=>{go('home');bigFx('')},
-  tstart:()=>tgStart(),
+  unlock:()=>{const k=S.sel,u=UNLOCK[k];if(!u||S.fu[k]||!reqs(k).every(r=>r[1]))return;S.inv[u.item]--;S.fu[k]=1;bigFx(FS[k].n.toUpperCase()+'\nUNLOCKED!');go(cur,1)},
+  auto:()=>{const k=S.sel;if(!S.fu[k])return;if(SD2(k).lv<3)return toast('Reach Lv. 3 to unlock Auto-Train');S.auto[k]=!S.auto[k];go(cur,1)},
   quit:()=>toast('There is no escaping destiny...'),
   title:()=>$('#title').classList.remove('hide'),
   train:()=>{const k=S.sel,d=S.sty[k],c=trainCost(k);if(S.coins<c)return toast('Not enough gold!');
@@ -552,7 +615,7 @@ const ACTS={
   reset:()=>{if(confirm('Reset all progress?')){store.del(KEY);S=fresh();go('home');toast('Progress reset.')}}
 };
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-go],[data-act],[data-sel],[data-tab],[data-up],[data-set],[data-claim],[data-use],[data-menu]');if(!b)return;
+  const b=e.target.closest('[data-go],[data-act],[data-sel],[data-tab],[data-up],[data-set],[data-claim],[data-use],[data-menu],[data-buy],[data-zone]');if(!b)return;
   const d=b.dataset;if(d.menu){toggleMenu();return}toggleMenu(false);fxClick(e,d);
   if(d.go)go(d.go);
   else if(d.sel){S.sel=d.sel;go(cur,1)}
@@ -561,11 +624,13 @@ document.addEventListener('click',e=>{
   else if(d.set){const[k,v]=d.set.split(':');S[k]=v;go(cur,1)}
   else if(d.claim)claim(d.claim);
   else if(d.use)ACTS.use();
+  else if(d.buy)buy(d.buy);
+  else if(d.zone!==undefined){const z=+d.zone;if(SD2(S.sel).lv>=ZR[z]){S.zn[S.sel]=z;go(cur,1)}else toast('Reach Lv. '+ZR[z]+' to unlock this zone')}
   else ACTS[d.act]?.();
 });
 
 /* ============ BOOT ============ */
-$('#nav').innerHTML=TABS.map(([id,ic,l])=>`<button data-go="${id}"><i>${ic}</i>${l}</button>`).join('');
+$('#nav').innerHTML=navHtml();
 const away=Math.min(Math.floor((Date.now()-S.t)/1000),28800),before=S.coins;
 if(away>5)tick(away);
 VIEWS.home&&($('#view').innerHTML=VIEWS.home());paint();
