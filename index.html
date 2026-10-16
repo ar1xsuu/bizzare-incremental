@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bizzare Incremental</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
+<style>
+:root{--gold:#f5c542;--gold2:#c28a12;--pur:#7b2cff;--ink:#07030f;--txt:#efe8ff;--mut:#a89bd0;--line:#5b3aa8;--hd:'Anton',Impact,'Arial Narrow',sans-serif}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#05020b;color:var(--txt);font:14px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:480px;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(120% 60% at 50% 0,#4b1796,#1c0942 45%,var(--ink))}
+#app::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,#ffffff09 0 2px,transparent 2px 14px);pointer-events:none}
+.hd{font-family:var(--hd);letter-spacing:1px}.gold{color:var(--gold)}.mut{color:var(--mut)}
+button{font:inherit;color:inherit}button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+/* HUD + nav */
+#hud{display:flex;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;z-index:2;background:linear-gradient(#000c,#0000)}
+.chip{flex:1;display:flex;align-items:center;gap:6px;background:#000a;border:2px solid var(--line);border-radius:20px;padding:4px 10px;font-weight:700}
+.chip i{font-style:normal}.coin{width:16px;height:16px;border-radius:50%;background:radial-gradient(#ffe27a,var(--gold2))}
+.gem{color:#c58bff}.sta{color:#7dff9a}
+#view{flex:1;overflow-y:auto;padding:12px;position:relative}
+#nav{display:flex;gap:4px;z-index:2;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(#1a0d36,var(--ink));border-top:3px solid var(--gold)}
+#nav button{flex:1;background:none;border:2px solid transparent;color:var(--mut);font:12px var(--hd);letter-spacing:.5px;padding:4px 0;cursor:pointer}
+#nav button i{display:block;font-style:normal;font-size:20px}
+#nav button.on{color:#fff;border-color:var(--gold);background:#3a1a7a99;transform:skewX(-8deg)}
+
+/* shared components */
+.banner{display:inline-block;margin:0 0 12px;padding:6px 28px 6px 16px;font:24px var(--hd);letter-spacing:2px;background:linear-gradient(90deg,#000,#24114a);border:2px solid var(--gold);border-right-width:5px;transform:skewX(-12deg)}
+.panel{position:relative;margin-bottom:12px;padding:12px;background:linear-gradient(160deg,#150b2af2,#07030ff2);border:2px solid var(--line);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.panel.story{border-color:var(--gold2);background:linear-gradient(110deg,#4a3406f2,#0d0818f2)}
+.panel h3{font:15px var(--hd);letter-spacing:1px;color:var(--mut);margin-bottom:6px;font-weight:400}
+.panel p{margin-bottom:4px}
+.prof{display:flex;gap:10px;align-items:center}.grow{flex:1;min-width:0}
+.portrait{flex:none;width:58px;height:58px;display:grid;place-items:center;font:28px var(--hd);border:2px solid var(--gold);background:linear-gradient(135deg,var(--pur),#1a0a3a) center/cover;transform:skewX(-6deg)}
+.name{font:20px var(--hd);letter-spacing:1px}
+.bw{margin-top:4px}.bw small{display:block;text-align:right;color:var(--mut);font-size:11px}
+.bar{height:12px;background:#000;border:1px solid #6b52b8;transform:skewX(-20deg);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#4a1fff,#b46bff);transition:width .4s}
+.btn{font:18px var(--hd);letter-spacing:1px;color:#fff;cursor:pointer;padding:10px 18px;background:linear-gradient(#26124a,#120826);border:2px solid var(--gold);transform:skewX(-10deg)}
+.btn:active{transform:skewX(-10deg) scale(.96)}
+.btn.gold{color:#2a1500;background:linear-gradient(#ffe27a,#e0a319);border-color:#fff3b0}
+.btn.sm{font-size:14px;padding:5px 16px;margin-top:8px}.prof .btn.sm{margin:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.tile{padding:16px 8px}.tile i{display:block;font-style:normal;font-size:28px}.wide{width:100%}
+.stub{text-align:center;padding:26px 12px}
+.menace{font:44px var(--hd);color:#9b4bff;letter-spacing:6px;animation:rumble .15s infinite}
+.stub .menace{opacity:.6;margin-bottom:8px}
+
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;padding:7px 4px;cursor:pointer;font:14px var(--hd);letter-spacing:1px;color:var(--mut);background:#0d0818;border:2px solid var(--line);transform:skewX(-10deg)}
+.tab.on{color:#2a1500;background:linear-gradient(#ffe27a,#e0a319);border-color:#fff3b0}
+.stat{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #ffffff14}.stat:last-child{border:0}
+.ok{color:#7dff9a}.no{color:#ff6b8a}.panel .wide{margin-top:8px}
+.btn:disabled{opacity:.4;filter:grayscale(1);cursor:not-allowed}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.slot{padding:10px 4px;text-align:center;cursor:pointer;font-size:12px;background:linear-gradient(#1b0f38,#0b0618);border:2px solid var(--line)}
+.slot i{display:block;font-style:normal;font-size:30px}.slot small{display:block;color:var(--gold)}.slot.on{border-color:var(--gold)}
+.slot.lock{filter:grayscale(1);opacity:.6}
+/* title screen */
+#title{position:absolute;inset:0;z-index:10;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 48px) 24px calc(env(safe-area-inset-bottom,0px) + 28px);background:radial-gradient(90% 50% at 50% 38%,#5a1fb5,#14062e 60%,#05020b)}
+#title.hide{display:none}
+#title::before{content:"";position:absolute;inset:-60%;background:repeating-conic-gradient(#9b5cff2e 0 5deg,transparent 5deg 12deg);animation:spin 120s linear infinite}
+#title>*{position:relative}
+.logo{text-align:center;transform:rotate(-6deg) skewX(-8deg)}
+.logo b{display:block;font:clamp(58px,19vw,92px)/.95 var(--hd);letter-spacing:2px;font-weight:400;background:linear-gradient(#ff7be0,#a62bff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px #fff;filter:drop-shadow(5px 5px 0 #2a0a5e)}
+.logo b+b{font-size:clamp(26px,9vw,42px)}
+.logo small{display:block;margin-top:8px;color:var(--gold);font-weight:700;letter-spacing:3px}
+.tbtns{display:flex;flex-direction:column;gap:10px;width:68%}.tbtns .btn{width:100%}
+.tbtns .btn.gold{font-size:26px;padding:12px}
+.tag{color:var(--mut);font-style:italic}
+#toast{position:absolute;left:50%;bottom:90px;z-index:20;transform:translate(-50%,20px);opacity:0;pointer-events:none;max-width:86%;text-align:center;padding:8px 18px;font:16px var(--hd);letter-spacing:1px;background:#000d;border:2px solid var(--gold);transition:.25s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rumble{25%{transform:translate(1px,-1px)}50%{transform:translate(-1px,1px)}75%{transform:translate(1px,1px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ===== v2: polish & effects ===== */
+:root{--glow:0 0 16px #9b4bff88;--gg:0 0 14px #f5c54299}
+#app::after{content:"";position:absolute;width:150%;aspect-ratio:1;left:-25%;top:-45%;z-index:0;pointer-events:none;opacity:.5;background:conic-gradient(#7b2cff55,#e0309c33,#f5c54222,#7b2cff55);filter:blur(46px);animation:spin 50s linear infinite}
+#view{z-index:1;scrollbar-width:thin;scrollbar-color:#7b2cff transparent}
+#hud,#nav{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#nav{box-shadow:0 -6px 24px #000a}
+.chip{background:linear-gradient(#1c0f3ccc,#0a0516cc);box-shadow:inset 0 0 0 1px #ffffff14,0 2px 10px #0008}
+.chip.bump{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.14);box-shadow:var(--gg)}}
+.coin{box-shadow:0 0 8px var(--gold);animation:coin 3s ease-in-out infinite}
+@keyframes coin{50%{transform:scaleX(.25)}}
+.banner{position:relative;overflow:hidden;box-shadow:4px 4px 0 var(--gold2),0 0 18px #7b2cff66}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fff8 50%,transparent 70%);transform:translateX(-130%);animation:shine 1.1s .35s forwards}
+@keyframes shine{to{transform:translateX(130%)}}
+.panel{background:radial-gradient(#ffffff10 1px,transparent 1.6px) 0 0/9px 9px,linear-gradient(160deg,#21104aeb,#080414f2);border-color:#6d49d1;box-shadow:inset 0 0 26px #7b2cff2a,inset 0 1px 0 #ffffff26}
+.panel.story{background:radial-gradient(#ffffff10 1px,transparent 1.6px) 0 0/9px 9px,linear-gradient(110deg,#5a4008f2,#0d0818f2);box-shadow:inset 0 0 26px #f5c54226}
+.panel h3{color:var(--gold);text-shadow:1px 1px 0 #000}
+.name{text-shadow:2px 2px 0 #000}
+#view.enter>:not(.btn):not(.banner){animation:panelIn .5s cubic-bezier(.2,.9,.3,1.15) backwards;animation-delay:calc(min(var(--i,0),7)*70ms)}
+#view.enter>.banner{animation:bannerIn .45s cubic-bezier(.2,.9,.3,1.2) backwards}
+@keyframes panelIn{from{opacity:0;transform:translateX(-28px) skewX(8deg)}}
+@keyframes bannerIn{from{opacity:0;transform:translateX(-34px) skewX(-12deg)}}
+.btn{position:relative;overflow:hidden;box-shadow:0 4px 0 #000a,inset 0 1px 0 #ffffff33;transition:filter .2s,transform .1s}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,#fff7 50%,transparent 65%);transform:translateX(-130%)}
+.btn:hover::after,.btn:focus-visible::after{transform:translateX(130%);transition:transform .6s}
+.btn:hover{filter:brightness(1.15)}
+.btn.gold:not(:disabled){animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 4px 0 #000a,0 0 24px #f5c542bb}}
+.tab,.slot{transition:transform .15s,box-shadow .2s,border-color .2s}
+.tab.on,.slot.on{box-shadow:var(--gg)}
+.slot:hover{transform:translateY(-3px);border-color:var(--gold)}
+.slot i{transition:transform .2s}.slot:hover i{transform:scale(1.2) rotate(-6deg)}
+.bar{box-shadow:0 0 8px #7b2cff66}
+.bar i{background:repeating-linear-gradient(115deg,#ffffff30 0 6px,transparent 6px 12px) 0 0/24px 100%,linear-gradient(90deg,#4a1fff,#c06bff);box-shadow:0 0 10px #b46bff;animation:stripes 1s linear infinite}
+@keyframes stripes{to{background-position:24px 0,0 0}}
+.portrait{position:relative;box-shadow:0 0 14px #7b2cffaa}
+.portrait::after{content:"";position:absolute;inset:-5px;border:2px solid var(--gold);opacity:0;animation:ring 2.6s ease-out infinite}
+@keyframes ring{0%{transform:scale(.92);opacity:.8}100%{transform:scale(1.3);opacity:0}}
+#nav button{position:relative;transition:.2s}
+#nav button.on{box-shadow:0 0 16px #f5c54255,inset 0 0 12px #7b2cff77}
+#nav button.on i{animation:hop .5s}
+@keyframes hop{40%{transform:translateY(-6px) scale(1.25)}}
+#nav button[data-badge]::after{content:attr(data-badge);position:absolute;top:-2px;right:10%;min-width:17px;padding:0 4px;font:11px/17px var(--hd);color:#fff;background:#ff2d6f;border-radius:9px;animation:glow 1.2s infinite}
+.rates{display:flex;gap:8px;margin-bottom:12px}
+.rates span{flex:1;text-align:center;padding:6px 2px;font:700 12px system-ui;color:var(--gold);background:#000a;border:1px solid #6d49d1}
+#toast{background:linear-gradient(90deg,#000,#2a1060,#000);box-shadow:0 0 22px #7b2cffaa}
+#fx{position:absolute;inset:0;width:100%;height:100%;z-index:15;pointer-events:none}
+.pop,.flt,.burst,.flash,.lvl{position:absolute;pointer-events:none}
+.pop{z-index:30;font:34px var(--hd);color:#ffe27a;-webkit-text-stroke:2px #2a0a5e;paint-order:stroke fill;text-shadow:3px 3px 0 #7b2cff;animation:pop .85s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(var(--r))}25%{opacity:1;transform:translate(-50%,-70%) scale(1.3) rotate(var(--r))}100%{opacity:0;transform:translate(-50%,-200%) scale(1) rotate(var(--r))}}
+.flt{z-index:30;font:700 14px system-ui;color:#ffe27a;text-shadow:0 1px 3px #000;animation:flt 1.2s ease-out forwards}
+@keyframes flt{from{transform:translate(-50%,0)}to{transform:translate(-50%,30px);opacity:0}}
+.burst{z-index:29;width:10px;height:10px;border-radius:50%;background:repeating-conic-gradient(var(--gold) 0 8deg,transparent 8deg 24deg);animation:burst .45s ease-out forwards}
+@keyframes burst{from{transform:translate(-50%,-50%) scale(.3);opacity:1}to{transform:translate(-50%,-50%) scale(9);opacity:0}}
+.flash{inset:0;z-index:25;background:radial-gradient(circle,#fff,#b46bff 40%,transparent 72%);animation:flash .65s ease-out forwards}
+@keyframes flash{from{opacity:.9}to{opacity:0}}
+.lvl{left:50%;top:36%;z-index:26;text-align:center;white-space:pre;font:clamp(46px,15vw,76px)/1 var(--hd);color:#ffe27a;-webkit-text-stroke:3px #2a0a5e;paint-order:stroke fill;text-shadow:5px 5px 0 #7b2cff,0 0 30px #f5c542;animation:lvl 1.8s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes lvl{0%{opacity:0;transform:translate(-50%,-50%) rotate(-6deg) scale(3)}15%{opacity:1;transform:translate(-50%,-50%) rotate(-6deg) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-85%) rotate(-6deg)}}
+#app.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(3px,2px)}}
+#title::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(transparent 50%,#000d)}
+.logo{animation:slam .9s cubic-bezier(.2,1.3,.4,1) both,float 5s 1s ease-in-out infinite}
+@keyframes slam{0%{opacity:0;transform:rotate(-6deg) skewX(-8deg) scale(3)}60%{opacity:1;transform:rotate(-6deg) skewX(-8deg) scale(.94)}100%{transform:rotate(-6deg) skewX(-8deg)}}
+@keyframes float{50%{transform:rotate(-6deg) skewX(-8deg) translateY(-8px)}}
+.tbtns .btn{animation:btnIn .5s cubic-bezier(.2,1.2,.4,1) backwards}
+.tbtns .btn:nth-child(2){animation-delay:.85s}.tbtns .btn:nth-child(3){animation-delay:.95s}.tbtns .btn:nth-child(4){animation-delay:1.05s}
+.tbtns .btn.gold{animation:btnIn .5s .75s backwards,glow 2s 1.3s ease-in-out infinite}
+@keyframes btnIn{from{opacity:0;transform:translateX(-70px) skewX(-10deg)}}
+.menace{text-shadow:0 0 18px #9b4bff}
+/* ===== v3: argyle bg, hero, dropdown menu, training games ===== */
+:root{--argyle:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='115' viewBox='0 0 84 115'%3E%3Crect width='84' height='115' fill='%232b1b36'/%3E%3Cpolygon points='42,1 83,57.5 42,114 1,57.5' fill='%23932a8c' stroke='%23c99a2e' stroke-width='3'/%3E%3Cpolygon points='42,13 71,57.5 42,102 13,57.5' fill='%237d2178' stroke='%23551553' stroke-width='2' stroke-dasharray='2 2'/%3E%3C/svg%3E")}
+body{background:linear-gradient(#000a,#000c),var(--argyle) 0 0/56px 76px,#05020b}
+#app{background:linear-gradient(#1a083366,#07030fcc),var(--argyle) 0 0/64px 88px,#2b1b36}
+#app::before{display:none}#app::after{opacity:.25}
+button{touch-action:manipulation}
+.chip{padding:4px 8px;font-size:13px}
+#burger{flex:none;width:42px;display:grid;place-content:center;gap:5px;cursor:pointer;background:linear-gradient(#26124a,#120826);border:2px solid var(--gold);transform:skewX(-10deg)}
+#burger i{display:block;width:20px;height:3px;background:var(--gold);transition:transform .3s,opacity .2s}
+.mo #burger i:nth-child(1){transform:translateY(8px) rotate(45deg)}.mo #burger i:nth-child(2){opacity:0}.mo #burger i:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+#scrim{position:absolute;inset:calc(env(safe-area-inset-top,0px) + 54px) 0 0;z-index:5;background:#000b;opacity:0;pointer-events:none;transition:opacity .3s}
+.mo #scrim{opacity:1;pointer-events:auto}
+#drop{position:absolute;z-index:6;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 58px);display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;background:linear-gradient(#1d0e40f7,#0a0518f7);border:2px solid var(--gold);clip-path:inset(0 0 100% 0);pointer-events:none;transition:clip-path .4s cubic-bezier(.2,.9,.3,1)}
+.mo #drop{clip-path:inset(0);pointer-events:auto}
+.dbtn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 6px;cursor:pointer;font:17px var(--hd);letter-spacing:1px;color:#fff;opacity:0;background:linear-gradient(#26124a,#120826);border:2px solid var(--line)}
+.dbtn i{font-style:normal;font-size:26px}.dbtn.on,.dbtn:hover{border-color:var(--gold);box-shadow:var(--gg)}
+.mo .dbtn{animation:dIn .4s cubic-bezier(.2,1.3,.4,1) forwards;animation-delay:calc(var(--i)*55ms + .1s)}
+@keyframes dIn{from{opacity:0;transform:translateY(-16px) scale(.8) skewX(-8deg)}to{opacity:1;transform:skewX(-8deg)}}
+.hero{position:relative;height:215px;margin:-12px -12px 14px;overflow:hidden;border-bottom:3px solid var(--gold);background:linear-gradient(135deg,#3a0f7a,#e0309c)}
+.hero.slim{height:104px}
+.hbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hshade{position:absolute;inset:0;background:linear-gradient(#0000 35%,#07030ff0),linear-gradient(#07030fa0,#0000 45%)}
+.hlogo{position:absolute;top:6px;left:50%;width:min(60%,240px);transform:translateX(-50%);filter:drop-shadow(0 4px 8px #000b)}
+.hcard{position:absolute;left:12px;right:12px;bottom:10px;margin:0}
+.hbn{position:absolute;left:12px;bottom:10px;margin:0}
+.rates span{background:#000b}
+.play{position:relative;min-height:190px;text-align:center}
+.tg-top{display:flex;justify-content:space-between;font:15px var(--hd);letter-spacing:1px;margin-bottom:10px}
+.tbar{position:relative;height:46px;margin:18px 0 22px;background:#000;border:2px solid var(--line);overflow:hidden}
+.zone{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,#f5c54200,#f5c542cc,#f5c54200);box-shadow:0 0 14px #f5c542}
+.mk{position:absolute;top:-2px;bottom:-2px;width:6px;margin-left:-3px;background:#fff;box-shadow:0 0 12px #fff,0 0 22px #b46bff}
+.dial{position:relative;width:168px;height:168px;margin:6px auto 16px;border-radius:50%;border:3px solid var(--line);box-shadow:0 0 22px #7b2cff88}
+.nd{position:absolute;left:50%;top:50%;width:4px;height:78px;margin:-78px 0 0 -2px;background:#fff;transform-origin:50% 100%;box-shadow:0 0 10px #fff}
+.rx{font:34px var(--hd);letter-spacing:2px;color:var(--mut);padding:24px 0 28px;margin:6px 0 14px;background:#0006;border:2px dashed var(--line)}
+.rx.go{color:#fff;background:linear-gradient(#e0309c,#7b2cff);border:2px solid var(--gold);animation:bump .3s}
+.pads{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pad{font-size:34px;padding:16px;cursor:pointer;background:linear-gradient(#26124a,#120826);border:2px solid var(--line);transition:.1s}
+.pad.lit{background:linear-gradient(#ffe27a,#e0a319);border-color:#fff;transform:scale(1.06);box-shadow:var(--gg)}
+.tg-msg{position:absolute;left:50%;top:46%;z-index:3;white-space:nowrap;font:30px var(--hd);--r:-6deg;animation:pop .85s forwards}
+.q0{color:#ff6b8a}.q1{color:#7dff9a}.q2{color:#ffe27a;text-shadow:0 0 14px #f5c542}
+.rank{font:96px/1 var(--hd);margin:6px 0;animation:slamr .6s cubic-bezier(.2,1.4,.4,1)}
+.rS{color:#ffe27a;text-shadow:0 0 24px #f5c542,4px 4px 0 #7b2cff}.rA{color:#7dff9a}.rB{color:#8ec5ff}.rC{color:#ff9ab0}
+@keyframes slamr{from{opacity:0;transform:scale(3) rotate(-10deg)}}
+#title{background:radial-gradient(80% 55% at 50% 38%,#0000,#0007 65%,#000d)}
+#title .menace{display:none}
+.logo{width:min(94%,440px);height:auto;transform:none}
+@keyframes slam{0%{opacity:0;transform:scale(3)}60%{opacity:1;transform:scale(.94)}100%{transform:none}}
+@keyframes float{50%{transform:translateY(-8px)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="hud">
+    <div class="chip"><i class="coin"></i><span id="coins">0</span></div>
+    <div class="chip"><i class="gem">◆</i><span id="gems">0</span></div>
+    <div class="chip"><i class="sta">⚡</i><span id="sta">0/0</span></div>
+    <button id="burger" data-menu="1" aria-label="Menu" aria-expanded="false"><i></i><i></i><i></i></button>
+  </header>
+  <main id="view"></main>
+  <nav id="nav"></nav>
+
+  <section id="title">
+    <img class="logo" src="assets/logo.png" alt="Bizzare Incremental">
+    <div class="menace" aria-hidden="true">ゴゴゴ</div>
+    <div class="tbtns">
+      <button class="btn gold" data-act="start">START</button>
+      <button class="btn" data-go="index">INDEX</button>
+      <button class="btn" data-go="settings">SETTINGS</button>
+      <button class="btn" data-act="quit">QUIT</button>
+    </div>
+    <p class="tag">Your journey... is just beginning...</p>
+  </section>
+  <div id="toast" role="status"></div>
+  <div id="scrim" data-menu="1"></div><div id="drop"></div>
+  <canvas id="fx"></canvas>
+</div>
+
+<script>
+/* ============ CONFIG ============
+   Drop image URLs here later (e.g. 'assets/star-platinum.png'). Empty = gradient placeholder. */
+const ART={player:'',stand:'',logo:'assets/logo.png',banner:'https://media1.tenor.com/m/tTckanekc1MAAAAC/jojo-banner.gif'};
+
+/* ============ SAVE (localStorage now, Supabase later) ============ */
+const KEY='bizzare_save_v1',mem={};
+const store={
+  get:k=>{try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},
+  set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},
+  del:k=>{try{localStorage.removeItem(k)}catch(e){delete mem[k]}}
+};
+const fresh=()=>({name:'Joestar',lv:1,xp:0,xpMax:100,coins:100,gems:50,sta:5,staMax:5,
+  path:'Stand User',stand:{name:'Star Platinum',lv:1,xp:0,xpMax:50,evo:false},sel:'hamon',tab:'skills',sk:{ora:1,time:1,finger:1},
+  sty:{hamon:{lv:1,xp:0},spin:{lv:1,xp:0},boxing:{lv:1,xp:0}},inv:{'Stand Arrow':3,'Stone Mask':1,'Steel Ball':1,'Roka Fruit':2},
+  cnt:{train:0,up:0},qd:{},qt:'active',it:'Stand Arrow',rb:0,cl:0,wk:0,sr:0,xt:'stands',xi:'0',
+  story:{part:'Part 1: The Mysterious Arrow',ch:'Chapter 1 · Arrive at the Mansion'},t:Date.now()});
+let S;try{S={...fresh(),...JSON.parse(store.get(KEY))}}catch(e){S=fresh()}
+const save=()=>{S.t=Date.now();store.set(KEY,JSON.stringify(S))};
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const fmt=n=>{const u=['','K','M','B','T'];let i=0;while(n>=1000&&i<4){n/=1000;i++}return i?n.toFixed(n<10?2:1)+u[i]:Math.floor(n)};
+const art=k=>ART[k]?`style="background-image:url('${ART[k]}')"`:'';
+const bar=(id,v,m)=>`<div class="bw"><div class="bar"><i id="${id}-f" style="width:${Math.min(100,v/m*100)}%"></i></div><small id="${id}-t">${fmt(v)} / ${fmt(m)}</small></div>`;
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('on'),2200)};
+
+/* ============ GAME LOOP (passive growth) ============ */
+function tick(n){
+  const m=mult();S.coins+=Math.floor((2+S.lv*1.5)*m.gold*n);S.xp+=2*m.xp*n;S.stand.xp+=m.xp*n;
+  S.sr=(S.sr||0)+n;while(S.sr>=60&&S.sta<S.staMax){S.sta++;S.sr-=60}if(S.sta>=S.staMax)S.sr=0; // energy: +1 per minute
+  while(S.xp>=S.xpMax){S.xp-=S.xpMax;S.lv++;S.xpMax=Math.floor(S.xpMax*1.25+20)}
+  while(S.stand.xp>=S.stand.xpMax){S.stand.xp-=S.stand.xpMax;S.stand.lv++;S.stand.xpMax=Math.floor(S.stand.xpMax*1.3+15)}
+}
+setInterval(()=>{const l=S.lv,sl=S.stand.lv,c0=S.coins;tick(1);RATE=S.coins-c0;paint();floatGold(RATE);if(S.lv>l)bigFx('LEVEL UP!\nLv. '+S.lv);if((S.lv>l||S.stand.lv>sl)&&['stand','quests','rebirth'].includes(cur))go(cur,1)},1000);
+setInterval(save,5000);
+addEventListener('pagehide',save);
+document.addEventListener('visibilitychange',()=>document.hidden&&save());
+
+/* ============ DATA & RULES ============ */
+const BONUS=['Attack','Defense','Stamina'];
+const STYLES={ // b = % bonus per level [Attack, Defense, Stamina]
+  hamon:{n:'Hamon',ic:'☀️',d:'Breathing technique that channels the energy of the sun.',b:[2.4,1.6,1]},
+  spin:{n:'The Spin',ic:'🌀',d:'Golden rotation that bends the rules of physics.',b:[3,1,1.2]},
+  boxing:{n:'Boxing',ic:'🥊',d:'Footwork and fists, honed in the ring.',b:[1.8,2,1.5]}
+};
+const STANDS={'Star Platinum':{
+  sk:[['ora','Ora Ora Rush','Unleash a flurry of punches. Deals 150% damage.',400],
+      ['time','Time Stop','Stop time for 3 seconds.',1200],
+      ['finger','Star Finger','High precision attack. Deals 200% damage.',800]],
+  st:[['Destructive Power','A'],['Speed','A'],['Range','C'],['Durability','A'],['Precision','A'],['Development Potential','A']],
+  evo:{to:'Star Platinum: The World',lv:5,item:'Stone Mask'}}};
+const SD=()=>STANDS['Star Platinum'];
+const xpNeed=l=>Math.floor(60*1.35**(l-1));
+const trainCost=k=>Math.floor(25*1.18**S.sty[k].lv);
+const skCost=id=>Math.floor(SD().sk.find(x=>x[0]===id)[3]*1.6**(S.sk[id]-1));
+function stats(){
+  const b=[0,0,0];for(const k in STYLES)STYLES[k].b.forEach((v,i)=>b[i]+=v*S.sty[k].lv);
+  const sk=Object.values(S.sk).reduce((a,c)=>a+c,0),ev=S.stand.evo?1.5:1;
+  return{b,Health:100+S.lv*20,Attack:Math.floor((20+S.lv*6+sk*4)*ev*(1+b[0]/100)),
+    Defense:Math.floor((15+S.lv*4)*(1+b[1]/100)),Stamina:Math.floor((30+S.lv*3)*(1+b[2]/100))}}
+function upSkill(id){const c=skCost(id);if(S.coins<c)return toast('Not enough gold!');S.coins-=c;S.cnt.up++;S.sk[id]++;go(cur,1)}
+
+const REB_LV=10;
+const mult=()=>({gold:1.5**S.rb,xp:1.2**S.rb,drop:1.1**S.rb});
+const ITEMS={ // [icon, description, use effect]
+  'Stand Arrow':['🏹','A mysterious arrow that awakens a Stand. +200 Stand XP.',()=>S.stand.xp+=200],
+  'Stone Mask':['🎭','Key item. Needed for some Stand evolutions.'],
+  'Roka Fruit':['🍎','A rare fruit. +150 EXP.',()=>S.xp+=150],
+  'Steel Ball':['⚪','Spin-infused sphere. +100 Spin XP.',()=>S.sty.spin.xp+=100],
+  'Mysterious Coin':['🪙','Pays back in gold. +500 gold.',()=>S.coins+=500],
+  'Hamon Manual':['📕','Breathing techniques. +100 Hamon XP.',()=>S.sty.hamon.xp+=100]
+};
+const QUESTS=[ // k = progress key, g = goal
+  {id:'m1',t:'main',n:'Investigate the Mansion',d:'Reach Lv. 3 and enter the mansion.',k:'lv',g:3,gold:300,it:{'Stand Arrow':1}},
+  {id:'m2',t:'main',n:'Defeat the Bandit Leader',d:'Raise your Stand to Lv. 3.',k:'sl',g:3,gold:1500,it:{'Mysterious Coin':2}},
+  {id:'m3',t:'main',n:'Awaken the Mask',d:'Raise your Stand to Lv. 5.',k:'sl',g:5,gold:4000,it:{'Stone Mask':1}},
+  {id:'s1',t:'side',n:'Daily Discipline',d:'Train 5 times.',k:'train',g:5,gold:200,it:{'Hamon Manual':1}},
+  {id:'s2',t:'side',n:'Sharpen Your Skills',d:'Upgrade Stand skills 3 times.',k:'up',g:3,gold:400,it:{'Steel Ball':1}},
+  {id:'s3',t:'side',n:'Rising Legend',d:'Reach Lv. 10.',k:'lv',g:10,gold:2500,it:{'Roka Fruit':2},gem:25}
+];
+const PROG={lv:()=>S.lv,sl:()=>S.stand.lv,train:()=>S.cnt.train,up:()=>S.cnt.up};
+const chap=()=>{const m=QUESTS.filter(q=>q.t==='main'),i=m.findIndex(q=>!S.qd[q.id]);return i<0?'Part complete. More chapters soon.':'Chapter '+(i+1)+' · '+m[i].n};
+const norm=()=>{tick(0);for(const k in S.sty){const d=S.sty[k];while(d.xp>=xpNeed(d.lv)){d.xp-=xpNeed(d.lv);d.lv++}}};
+function claim(id){const q=QUESTS.find(x=>x.id===id);if(S.qd[id]||PROG[q.k]()<q.g)return;
+  const m=mult();S.qd[id]=1;S.coins+=Math.floor(q.gold*m.gold);S.gems+=q.gem||0;
+  for(const i in q.it)S.inv[i]=(S.inv[i]||0)+Math.max(q.it[i],Math.round(q.it[i]*m.drop));
+  toast('Quest complete! +'+fmt(q.gold*m.gold)+' gold');go(cur,1)}
+
+const RACE=[ // [stage, power needed, gold, item rewards, gems]
+  ['San Diego Beach',100,200,{'Steel Ball':1}],['Desert Crossing',200,500,{'Mysterious Coin':1}],
+  ['Canyon Run',400,1200,{'Hamon Manual':1}],['Prairie Sprint',800,3000,{'Roka Fruit':1}],
+  ['Final Stretch',1600,8000,{'Stand Arrow':1},50]];
+const pwr=()=>{const t=stats();return t.Attack+t.Defense+t.Stamina};
+const wkEnd=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()+(7-d.getDay())).getTime()};
+const weekly=()=>{if(!S.wk||Date.now()>=S.wk){S.cl=0;S.wk=wkEnd()}}; // event resets every Sunday
+function give(g,it,gem){const m=mult();S.coins+=Math.floor(g*m.gold);S.gems+=gem||0;
+  for(const i in it)S.inv[i]=(S.inv[i]||0)+Math.max(it[i],Math.round(it[i]*m.drop))}
+const INDEX={ // [icon, name, subtitle, description, owned?]
+  stands:[['⭐','Star Platinum','Jotaro Kujo','A close-range powerhouse with great speed and precision. Its fists unleash the Ora Ora Rush.',()=>1],
+    ['🌟','Star Platinum: The World','Jotaro Kujo','The evolved Star Platinum, able to stop time.',()=>S.stand.evo],
+    ['🕰️','The World','Dio Brando','A close-range Stand that can stop time.',()=>0],
+    ['🌹','Golden Experience','Giorno Giovanna','Gives life to whatever it touches.',()=>0],
+    ['💎','Crazy Diamond','Josuke Higashikata','Restores anything it hits to its original state.',()=>0],
+    ['👑','Killer Queen','Yoshikage Kira','Turns anything it touches into a bomb.',()=>0]],
+  styles:[...Object.values(STYLES).map(v=>[v.ic,v.n,'Fighting style',v.d,()=>1]),
+    ['🦇','Vampirism','Stone Mask','Superhuman strength and regeneration, at the cost of weakness to sunlight.',()=>0]],
+  races:[['🧑','Human','Balanced','No special traits.',()=>1],
+    ['🧛','Vampire','Stone Mask','Immense strength and regeneration, but weak to sunlight and Hamon.',()=>0],
+    ['🗿','Pillar Man','Ancient being','Ancient beings who absorb their prey to grow stronger.',()=>0],
+    ['🪨','Rock Human','Stone-skinned','Stone-skinned beings of exceptional toughness.',()=>0]],
+  items:Object.entries(ITEMS).map(([k,v])=>[v[0],k,'Item',v[1],()=>S.inv[k]>0])
+};
+
+/* ============ VIEWS ============ */
+const TABS=[['home','🏠','Home'],['training','🥊','Training'],['stand','⭐','Stand'],['quests','📜','Quests'],['inventory','🎒','Bag']];
+const STUBS={
+  character:['CHARACTER','Stats, race and the path you have chosen.'],
+  inventory:['INVENTORY','Stand Arrows, Stone Masks, Steel Balls and more.'],
+  quests:['QUESTS','Active, main story and side quests.'],
+  training:['TRAINING','Hone Hamon, the Spin, boxing and other fighting styles.'],
+  stand:['STAND','Skills, evolution and info for each Stand.'],
+  index:['INDEX','Every Stand, fighting style, race and item.'],
+  rebirth:['REBIRTH','Reset the universe for permanent multipliers.'],
+  events:['EVENTS','Limited-time modes like the Steel Ball Run.']
+};
+const VIEWS={
+  home:()=>`<h2 class="banner">HOME</h2>
+  <div class="panel prof"><div class="portrait" ${art('player')}>J</div>
+    <div class="grow"><div><b class="name">${S.name}</b> <span id="lv" class="gold hd">Lv. ${S.lv}</span></div>${bar('xp',S.xp,S.xpMax)}</div></div>
+  <div class="rates"><span id="r-g"></span><span id="r-x"></span></div>
+  <div class="panel"><h3>Current Path</h3>
+    <div class="gold name">${S.path} ✪</div>
+    <p class="mut">You have chosen the path of a Stand User. The power within you grows...</p>
+    <button class="btn sm" data-go="character">View Path</button></div>
+  <div class="panel"><h3>Active Abilities</h3>
+    <div class="prof"><div class="portrait" ${art('stand')}>⭐</div>
+      <div class="grow"><div>${S.stand.name} <span id="slv" class="gold hd">Lv. ${S.stand.lv}</span></div>${bar('sxp',S.stand.xp,S.stand.xpMax)}</div>
+      <button class="btn sm" data-go="stand">View</button></div></div>
+  <div class="panel story"><h3 class="gold">Main Story</h3>
+    <p><b>${S.story.part}</b></p><p class="mut">${chap()}</p>
+    <button class="btn sm gold" data-go="quests">Continue</button></div>`,
+  menu:()=>`<h2 class="banner">MENU</h2><div class="grid">${
+    [['training','🥊','Training'],['stand','⭐','Stand'],['index','📖','Index'],['rebirth','🌌','Rebirth'],['events','🏇','Events'],['settings','⚙️','Settings']]
+    .map(([k,i,l])=>`<button class="btn tile" data-go="${k}"><i>${i}</i>${l}</button>`).join('')}</div>
+    <button class="btn wide" data-act="title">Title Screen</button>`,
+  settings:()=>`<h2 class="banner">SETTINGS</h2>
+  <div class="panel"><h3>Save Data</h3><p class="mut">Progress is saved in this browser. Cloud saves (Supabase) come later.</p>
+    <button class="btn sm" data-act="reset">Reset Progress</button></div>`
+};
+Object.assign(VIEWS,{
+  character:()=>{const s=stats();return `<h2 class="banner">CHARACTER</h2>
+  <div class="panel prof"><div class="portrait" ${art('player')}>J</div><div class="grow"><b class="name">${S.name}</b> <span id="lv" class="gold hd">Lv. ${S.lv}</span>${bar('xp',S.xp,S.xpMax)}</div></div>
+  <div class="panel"><h3>Stats</h3>${[['💖','Health'],['⚔️','Attack'],['🛡️','Defense'],['🏃','Stamina']].map(([i,k])=>`<div class="stat"><span>${i} ${k}</span><b>${fmt(s[k])}</b></div>`).join('')}</div>
+  <div class="panel"><h3>Race</h3><b>Human</b><p class="mut">No special traits.</p></div>
+  <div class="panel"><h3>Active Path</h3><div class="gold name">${S.path}</div><p class="mut">The power within you grows...</p></div>`},
+  training:()=>{const k=S.sel,st=STYLES[k],d=S.sty[k];return `<h2 class="banner">TRAINING</h2>
+  <div class="tabs">${Object.keys(STYLES).map(x=>`<button class="tab ${x===k?'on':''}" data-sel="${x}">${STYLES[x].ic} ${STYLES[x].n}</button>`).join('')}</div>
+  <div class="panel"><div class="prof"><div class="portrait">${st.ic}</div><div class="grow"><b class="name">${st.n}</b> <span class="gold hd">Lv. ${d.lv}</span>${bar('tx',d.xp,xpNeed(d.lv))}</div></div><p class="mut">${st.d}</p></div>
+  <div class="panel"><h3>Current Bonuses</h3>${st.b.map((v,i)=>`<p>+${(v*d.lv).toFixed(1)}% ${BONUS[i]}</p>`).join('')}</div>
+  <button class="btn gold wide" data-act="train">TRAIN · ${fmt(trainCost(k))} gold</button>`},
+  stand:()=>{const D=SD(),t=S.tab,e=D.evo;let body;
+    if(t==='skills')body=D.sk.map(([id,n,d])=>`<div class="panel prof"><div class="portrait">✦</div><div class="grow"><b>${n}</b> <span class="gold hd">Lv. ${S.sk[id]}</span><div class="mut">${d}</div></div><button class="btn sm" data-up="${id}">Upgrade<br>${fmt(skCost(id))}</button></div>`).join('');
+    else if(t==='info')body=`<div class="panel"><h3>Stand Stats</h3>${D.st.map(([k,v])=>`<div class="stat"><span>${k}</span><b class="gold">${v}</b></div>`).join('')}</div>`;
+    else{const l=S.stand.lv>=e.lv,i=(S.inv[e.item]||0)>0;
+      body=S.stand.evo?`<div class="panel"><h3>Evolution</h3><p class="gold name">Evolved: ${S.stand.name}</p><p class="mut">Attack x1.5</p></div>`:
+      `<div class="panel"><h3>Evolution</h3><p class="gold name">→ ${e.to}</p>
+      <p class="${l?'ok':'no'}">${l?'✔':'✘'} Stand Lv. ${e.lv} (now ${S.stand.lv})</p>
+      <p class="${i?'ok':'no'}">${i?'✔':'✘'} ${e.item} x1</p>
+      <button class="btn gold wide" data-act="evolve" ${l&&i?'':'disabled'}>EVOLVE</button></div>`}
+    return `<h2 class="banner">STAND</h2><div class="panel prof"><div class="portrait" ${art('stand')}>⭐</div><div class="grow"><b class="name">${S.stand.name}</b> <span id="slv" class="gold hd">Lv. ${S.stand.lv}</span>${bar('sxp',S.stand.xp,S.stand.xpMax)}</div></div>
+    <div class="tabs">${['skills','evolution','info'].map(x=>`<button class="tab ${x===t?'on':''}" data-tab="${x}">${x.toUpperCase()}</button>`).join('')}</div>${body}`}
+});
+Object.assign(VIEWS,{
+  inventory:()=>{const own=Object.keys(ITEMS).filter(k=>S.inv[k]>0),k=own.includes(S.it)?S.it:own[0];
+    if(!k)return `<h2 class="banner">INVENTORY</h2><div class="panel stub"><p>No items yet.</p><p class="mut">Complete quests to earn Stand Arrows, Stone Masks and more.</p><button class="btn sm" data-go="quests">View Quests</button></div>`;
+    const[ic,d,u]=ITEMS[k];
+    return `<h2 class="banner">INVENTORY</h2><div class="grid3">${own.map(x=>`<button class="slot ${x===k?'on':''}" data-set="it:${x}"><i>${ITEMS[x][0]}</i>${x}<small>x${S.inv[x]}</small></button>`).join('')}</div>
+    <div class="panel"><div class="prof"><div class="portrait">${ic}</div><div class="grow"><b class="name">${k}</b> <span class="gold hd">x${S.inv[k]}</span><div class="mut">${d}</div></div><button class="btn sm" data-use="1" ${u?'':'disabled'}>Use</button></div></div>`},
+  quests:()=>{const t=S.qt,list=QUESTS.filter(q=>t==='active'?!S.qd[q.id]:q.t===t);
+    const rw=q=>[`🪙 ${fmt(q.gold)}`,q.gem?`◆ ${q.gem}`:'',...Object.entries(q.it).map(([i,n])=>`${ITEMS[i][0]} ${i} x${n}`)].filter(Boolean).join(' · ');
+    return `<h2 class="banner">QUESTS</h2><div class="tabs">${[['active','Active'],['main','Main Story'],['side','Side']].map(([x,l])=>`<button class="tab ${x===t?'on':''}" data-set="qt:${x}">${l}</button>`).join('')}</div>
+    ${list.map(q=>{const p=Math.min(q.g,PROG[q.k]()),done=!!S.qd[q.id];return `<div class="panel"><div class="prof"><div class="grow"><b>${q.n}</b><div class="mut">${q.d}</div>${bar('q'+q.id,p,q.g)}<small class="gold">${rw(q)}</small></div><button class="btn sm" data-claim="${q.id}" ${p>=q.g&&!done?'':'disabled'}>${done?'Done':'Claim'}</button></div></div>`}).join('')||'<div class="panel stub"><p>All quests claimed.</p></div>'}`},
+  rebirth:()=>{const m=mult(),ok=S.lv>=REB_LV,nx=S.rb+1;
+    return `<h2 class="banner">REBIRTH</h2>
+    <div class="panel stub"><div class="menace" aria-hidden="true">ゴゴゴ</div><h3>Reset the Universe</h3><p>Reach Lv. ${REB_LV} to reset your level, gold, styles, Stand and quests for permanent multipliers. Gems and items stay.</p></div>
+    <div class="panel"><h3>Rebirths: ${S.rb}</h3>${[['💰','Money','gold',1.5],['✨','EXP','xp',1.2],['🎁','Item Drops','drop',1.1]].map(([i,l,k,b])=>`<div class="stat"><span>${i} ${l}</span><b>x${m[k].toFixed(2)} → <span class="gold">x${(b**nx).toFixed(2)}</span></b></div>`).join('')}</div>
+    <button class="btn gold wide" data-act="rebirth" ${ok?'':'disabled'}>${!ok?'Requires Lv. '+REB_LV+' (now '+S.lv+')':S.arm?'TAP AGAIN TO CONFIRM':'RESET UNIVERSE'}</button>
+    <p class="no" style="margin-top:8px;text-align:center">This action cannot be undone.</p>`}
+});
+Object.assign(VIEWS,{
+  index:()=>{const t=S.xt,L=INDEX[t],i=Math.min(+S.xi||0,L.length-1),[ic,n,sub,d,own]=L[i];
+    return `<h2 class="banner">INDEX</h2><div class="tabs">${[['stands','Stands'],['styles','Styles'],['races','Races'],['items','Items']].map(([x,l])=>`<button class="tab ${x===t?'on':''}" data-set="xt:${x}">${l}</button>`).join('')}</div>
+    <div class="grid3">${L.map((e,j)=>`<button class="slot ${j===i?'on':''} ${e[4]()?'':'lock'}" data-set="xi:${j}"><i>${e[0]}</i>${e[1]}<small>${e[4]()?'Owned':'Locked'}</small></button>`).join('')}</div>
+    <div class="panel"><div class="prof"><div class="portrait">${ic}</div><div class="grow"><b class="name">${n}</b><div class="gold">${sub}</div><div class="mut">${d}</div></div></div>
+    <p class="${own()?'ok':'no'}" style="margin-top:6px">${own()?'✔ Owned':'🔒 Not yet unlocked'}</p></div>`},
+  events:()=>{weekly();const p=pwr(),ms=Math.max(0,S.wk-Date.now()),t=`${Math.floor(ms/864e5)}d ${Math.floor(ms/36e5)%24}h ${Math.floor(ms/6e4)%60}m`;
+    return `<h2 class="banner">EVENTS</h2>
+    <div class="panel story"><h3 class="gold">Limited-Time Event</h3><div class="name">Steel Ball Run</div><p class="mut">⏳ ${t} left · resets every Sunday</p>
+    <p>Race across the continent. Each stage costs ⚡1 and needs enough Power (Attack + Defense + Stamina).</p><p class="gold">Your Power: ${fmt(p)}</p></div>
+    ${RACE.map((r,i)=>{const done=i<S.cl,now=i===S.cl,rw=[`🪙 ${fmt(r[2])}`,r[4]?`◆ ${r[4]}`:'',...Object.entries(r[3]).map(([k,n])=>`${ITEMS[k][0]} ${k} x${n}`)].filter(Boolean).join(' · ');
+      return `<div class="panel"><div class="prof"><div class="grow"><b>Stage ${i+1} · ${r[0]}</b><div class="${done||p>=r[1]?'ok':'no'}">Power ${fmt(r[1])}</div><small class="gold">${rw}</small></div><button class="btn sm" data-act="race" ${now?'':'disabled'}>${done?'✔ Cleared':now?'Race ⚡1':'Locked'}</button></div></div>`}).join('')}`}
+});
+const stub=k=>{const[t,d]=STUBS[k]||[k.toUpperCase(),''];
+  return `<h2 class="banner">${t}</h2><div class="panel stub"><div class="menace" aria-hidden="true">ゴゴゴ</div><p>${d}</p><p class="mut">Under construction. Coming in a later build.</p></div>`};
+
+/* ============ DROPDOWN MENU ============ */
+const MENU=[['character','👤','Character'],['index','📖','Index'],['events','🏇','Events'],['rebirth','🌌','Rebirth'],['settings','⚙️','Settings'],['*title','🏠','Title']];
+function toggleMenu(f){const a=$('#app'),o=f===undefined?!a.classList.contains('mo'):f;a.classList.toggle('mo',o);$('#burger').setAttribute('aria-expanded',o);
+  if(o)$('#drop').innerHTML=MENU.map(([k,i,l],n)=>`<button class="dbtn ${cur===k?'on':''}" style="--i:${n}" ${k[0]==='*'?`data-act="${k.slice(1)}"`:`data-go="${k}"`}><i>${i}</i>${l}</button>`).join('')}
+
+/* ============ HOME + HERO ============ */
+const hero=(cls,inner)=>`<div class="hero ${cls}"><img class="hbg" src="${ART.banner}" alt="" onerror="this.remove()"><div class="hshade"></div>${inner}</div>`;
+VIEWS.home=()=>{const q=QUESTS.filter(x=>!S.qd[x.id]&&PROG[x.k]()>=x.g).length;
+  return hero('',`<img class="hlogo" src="${ART.logo}" alt="Bizzare Incremental" onerror="this.remove()">
+  <div class="panel prof hcard"><div class="portrait" ${art('player')}>J</div><div class="grow"><b class="name">${S.name}</b> <span id="lv" class="gold hd">Lv. ${S.lv}</span>${bar('xp',S.xp,S.xpMax)}</div></div>`)+`
+  <div class="rates"><span id="r-g"></span><span id="r-x"></span><span>🔁 Rebirth ${S.rb}</span></div>
+  <div class="panel story"><h3>Main Story · ${S.story.part}</h3><div class="name gold">${chap()}</div><button class="btn gold wide" data-go="quests">CONTINUE</button></div>
+  <div class="grid">${[['training','🥊','Training','Mini-games'],['stand','⭐','Stand','Lv. '+S.stand.lv],['quests','📜','Quests',q?q+' ready!':'Missions'],['events','🏇','Steel Ball Run','Weekly race']].map(([g,i,n,sub])=>`<button class="slot" data-go="${g}"><i>${i}</i>${n}<small>${sub}</small></button>`).join('')}</div>
+  <div class="panel"><h3>Current Path · ${S.path} ✪</h3><div class="prof"><div class="portrait" ${art('stand')}>⭐</div><div class="grow"><div>${S.stand.name} <span id="slv" class="gold hd">Lv. ${S.stand.lv}</span></div>${bar('sxp',S.stand.xp,S.stand.xpMax)}</div><button class="btn sm" data-go="stand">View</button></div></div>`};
+
+/* ============ TRAINING MINI-GAMES ============ */
+const TG={hamon:['Breathing Rhythm','Tap when the marker crosses the sun zone. It speeds up each round.'],
+  spin:['Golden Rotation','Stop the spinning needle inside the golden arc.'],
+  boxing:['Counter Punch','Wait for the flash, then punch as fast as you can. Don\'t jump the gun!'],
+  stand:['Stand Sync','Watch the Stand pose sequence, then repeat it to sync with your inner self.']};
+const PADS=['⭐','🕰️','🌹','💎'];
+let G=null,raf=0;
+const play=h=>{const e=$('#play');if(e)e.innerHTML=h};
+const bon=k=>STYLES[k].b.map((v,i)=>`+${(v*S.sty[k].lv).toFixed(1)}% ${BONUS[i]}`).join(' · ');
+VIEWS.training=()=>{const k=TG[S.sel]?S.sel:'hamon',st=k==='stand',d=st?S.stand:S.sty[k],mx=st?d.xpMax:xpNeed(d.lv);S.sel=k;
+  return hero('slim','<h2 class="banner hbn">TRAINING</h2>')+`
+  <div class="tabs">${Object.keys(TG).map(x=>`<button class="tab ${x===k?'on':''}" data-sel="${x}">${x==='stand'?'⭐<br>Sync':STYLES[x].ic+'<br>'+STYLES[x].n}</button>`).join('')}</div>
+  <div class="panel"><div class="prof"><div class="portrait">${st?'⭐':STYLES[k].ic}</div><div class="grow"><b class="name">${st?S.stand.name:STYLES[k].n}</b> <span id="tl" class="gold hd">Lv. ${d.lv}</span>${bar('tx',d.xp,mx)}</div></div>
+  <p class="mut" id="tb">${st?'Raises your Stand level and unlocks evolution.':bon(k)}</p></div>
+  <div class="panel play" id="play"><h3>${TG[k][0]}</h3><p class="mut">${TG[k][1]}</p><button class="btn gold wide" data-act="tstart">START TRAINING</button></div>`};
+const tgHead=()=>`<div class="tg-top"><b>Round ${G.r}/${G.n}</b><span class="gold">${G.sc} pts</span><span>${G.cb>1?'🔥 x'+G.cb:''}</span></div>`;
+function tgStart(){if(G)clearTimeout(G.to);cancelAnimationFrame(raf);G={k:S.sel,r:0,n:S.sel==='stand'?4:5,sc:0,cb:0,res:0};tgNext()}
+function tgNext(){if(!G)return;if(G.r>=G.n)return tgEnd();G.r++;G.res=0;const k=G.k;
+  if(k==='hamon'||k==='spin')return tmRound(k==='spin',Math.max(.05,.17-S.sty[k].lv*.004));
+  k==='boxing'?rxRound():sqRound()}
+function tmRound(dial,w){const c=dial?Math.random():.2+Math.random()*.6,sp=.7+G.r*.2,t0=performance.now(),a=(c-w)*360,b=w*720;
+  Object.assign(G,{c,w,dial,live:1,p:0});
+  play(`${tgHead()}${dial?`<div class="dial" style="background:conic-gradient(from ${a}deg,#f5c542 ${b}deg,transparent ${b}deg),radial-gradient(#1a0d3a,#05020b)"><i class="nd" id="mk"></i></div>`
+    :`<div class="tbar"><i class="zone" style="left:${(c-w)*100}%;width:${w*200}%"></i><i class="mk" id="mk"></i></div>`}<button class="btn gold wide" data-act="tap">${dial?'STOP!':'BREATHE!'}</button>`);
+  (function f(now){if(!G||!G.live)return;const x=(now-t0)/1000*sp;G.p=dial?x%1:1-Math.abs(x%2-1);
+    const m=$('#mk');if(m)dial?m.style.transform=`rotate(${G.p*360}deg)`:m.style.left=G.p*100+'%';raf=requestAnimationFrame(f)})(t0)}
+function rxRound(){G.live=0;play(`${tgHead()}<div class="rx" id="rx">READY...</div><button class="btn wide" data-act="tap">PUNCH!</button>`);
+  G.to=setTimeout(()=>{if(!G)return;G.go=performance.now();G.live=1;const e=$('#rx');if(e){e.textContent='NOW!';e.className='rx go'}},900+Math.random()*1800)}
+function lit(i){const b=document.querySelector(`.pad[data-pad="${i}"]`);if(b){b.classList.add('lit');setTimeout(()=>b.classList.remove('lit'),300)}}
+function sqRound(){const L=G.r+2,g=G;Object.assign(G,{seq:Array.from({length:L},()=>Math.random()*4|0),inp:[],res:1});
+  play(`${tgHead()}<div class="rx" id="rx">WATCH...</div><div class="pads">${PADS.map((p,i)=>`<button class="pad" data-pad="${i}">${p}</button>`).join('')}</div>`);
+  g.seq.forEach((v,i)=>setTimeout(()=>G===g&&lit(v),700+i*600));
+  g.to=setTimeout(()=>{if(G!==g)return;g.res=0;const e=$('#rx');if(e){e.textContent='YOUR TURN!';e.className='rx go'}},700+L*600)}
+function rate(q,m){G.cb=q?G.cb+1:0;G.sc+=q+(q&&G.cb>2?1:0);
+  $('#play').insertAdjacentHTML('beforeend',`<div class="tg-msg q${q}">${m||['MISS...','GOOD!','PERFECT!!'][q]}</div>`);G.to=setTimeout(tgNext,850)}
+function tap(){if(!G||G.res||G.k==='stand')return;G.res=1;let q,m;
+  if(G.k==='boxing'){if(!G.live){clearTimeout(G.to);q=0;m='TOO EARLY!'}else{const t=performance.now()-G.go;q=t<280?2:t<450?1:0;m=Math.round(t)+' ms'}}
+  else{G.live=0;cancelAnimationFrame(raf);let d=Math.abs(G.p-G.c);if(G.dial)d=Math.min(d,1-d);q=d<=G.w/3?2:d<=G.w?1:0}
+  rate(q,m)}
+function pad(i){if(!G||G.k!=='stand'||G.res)return;lit(i);G.inp.push(i);const n=G.inp.length;
+  if(i!==G.seq[n-1]){G.res=1;rate(0,'WRONG!')}else if(n===G.seq.length){G.res=1;rate(2,'SYNCED!')}}
+function tgEnd(){const k=G.k,st=k==='stand',gr=Math.min(1,G.sc/10),d=st?S.stand:S.sty[k],lv=d.lv,need=st?d.xpMax:xpNeed(lv),
+    xp=Math.max(1,Math.round(need*.2*(.25+1.25*gr))),rk=gr>=.95?'S':gr>=.7?'A':gr>=.4?'B':'C';
+  d.xp+=xp;S.cnt.train++;norm();if(d.lv>lv)bigFx((st?S.stand.name:STYLES[k].n)+'\nLv. '+d.lv);G=null;
+  play(`<div class="rank r${rk}">${rk}</div><p class="gold name">+${fmt(xp)} ${st?'Stand':STYLES[k].n} EXP</p><button class="btn gold wide" data-act="tstart">TRAIN AGAIN</button>`);
+  const mx=st?d.xpMax:xpNeed(d.lv),f=$('#tx-f');if(f){f.style.width=Math.min(100,d.xp/mx*100)+'%';$('#tx-t').textContent=fmt(d.xp)+' / '+fmt(mx);$('#tl').textContent='Lv. '+d.lv;if(!st)$('#tb').textContent=bon(k)}}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-act=tap],[data-pad]');if(!b)return;e.preventDefault();b.dataset.pad!==undefined?pad(+b.dataset.pad):tap()});
+
+/* ============ EFFECTS ============ */
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches,P={c:S.coins},SFX={tstart:'ORA!',train:'ORA!',evolve:'ドドド!',race:'ZOOM!',rebirth:'ゴゴゴ'};
+let RATE=0;
+function put(cls,html,x,y,ms,css){const e=document.createElement('div'),a=$('#app'),r=a.getBoundingClientRect();
+  e.className=cls;e.innerHTML=html;e.style.cssText=`left:${x-r.left}px;top:${y-r.top}px;${css||''}`;a.appendChild(e);setTimeout(()=>e.remove(),ms)}
+function fxClick(e,d){if(RM)return;put('burst','',e.clientX,e.clientY,500);
+  const t=SFX[d.act]||(d.up&&'ドン!')||(d.claim&&'GET!')||(d.use&&'ドン!');
+  if(t)put('pop',t,e.clientX,e.clientY-24,850,`--r:${Math.random()*16-8}deg`)}
+function bigFx(t){const a=$('#app');if(RM)return t&&toast(t);
+  const f=document.createElement('div');f.className='flash';a.appendChild(f);setTimeout(()=>f.remove(),650);
+  if(t){const b=document.createElement('div');b.className='lvl';b.textContent=t;a.appendChild(b);setTimeout(()=>b.remove(),1800)}
+  a.classList.add('shake');setTimeout(()=>a.classList.remove('shake'),450)}
+function floatGold(n){if(RM||document.hidden||n<=0||!$('#title').classList.contains('hide'))return;
+  const r=$('#coins').getBoundingClientRect();put('flt','+'+fmt(n),r.left+r.width/2,r.bottom,1200)}
+function setT(id,t,bump){const e=$(id);if(e.textContent===t)return;e.textContent=t;
+  if(bump&&!RM){const c=e.parentElement;c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump')}}
+(function(){if(RM)return;const c=$('#fx'),x=c.getContext('2d'),N=36;let w,h;
+  const size=()=>{w=c.width=c.clientWidth;h=c.height=c.clientHeight};size();addEventListener('resize',size);
+  const q=Array.from({length:N},()=>({x:Math.random()*w,y:Math.random()*h,s:1+Math.random()*2.2,v:.25+Math.random()*.6,t:Math.random()*6,g:Math.random()<.3}));
+  (function f(){x.clearRect(0,0,w,h);if(!document.hidden)q.forEach(p=>{p.y-=p.v;p.t+=.03;p.x+=Math.sin(p.t)*.4;if(p.y<-5){p.y=h+5;p.x=Math.random()*w}
+    x.globalAlpha=.22+.22*Math.sin(p.t*2);x.fillStyle=p.g?'#f5c542':'#b46bff';x.save();x.translate(p.x,p.y);x.rotate(p.t);x.fillRect(-p.s,-p.s,p.s*2,p.s*2);x.restore()});
+    requestAnimationFrame(f)})()})();
+
+/* ============ ROUTER ============ */
+let cur='home';
+function go(id,keep){
+  clearTimeout(G&&G.to);cancelAnimationFrame(raf);G=null;cur=id;$('#title').classList.add('hide');
+  const v=$('#view');v.innerHTML=(VIEWS[id]||(()=>stub(id)))();if(keep)v.classList.remove('enter');else{v.scrollTop=0;S.arm=0;v.classList.remove('enter');void v.offsetWidth;[...v.children].forEach((c,i)=>c.style.setProperty('--i',i));v.classList.add('enter')}
+  const tab=TABS.some(t=>t[0]===id)?id:'menu';
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===tab));
+  paint();
+}
+function paint(){
+  setT('#coins',fmt(S.coins),S.coins<P.c||S.coins-P.c>Math.max(60,RATE*3));setT('#gems',fmt(S.gems),1);setT('#sta',S.sta+'/'+S.staMax,1);P.c=S.coins;
+  const nb=QUESTS.filter(q=>!S.qd[q.id]&&PROG[q.k]()>=q.g).length,qb=$('#nav [data-go=quests]');if(qb){nb?qb.dataset.badge=nb:delete qb.dataset.badge}
+  const m=mult(),rg=$('#r-g');if(rg){rg.textContent='🪙 +'+fmt((2+S.lv*1.5)*m.gold)+'/s';$('#r-x').textContent='✨ +'+fmt(2*m.xp)+' EXP/s'}
+  [['xp',S.xp,S.xpMax],['sxp',S.stand.xp,S.stand.xpMax]].forEach(([k,v,m])=>{
+    const f=$('#'+k+'-f');if(f){f.style.width=Math.min(100,v/m*100)+'%';$('#'+k+'-t').textContent=fmt(v)+' / '+fmt(m)}});
+  const a=$('#lv'),b=$('#slv');if(a)a.textContent='Lv. '+S.lv;if(b)b.textContent='Lv. '+S.stand.lv;
+}
+
+/* ============ EVENTS ============ */
+const ACTS={
+  start:()=>{go('home');bigFx('')},
+  tstart:()=>tgStart(),
+  quit:()=>toast('There is no escaping destiny...'),
+  title:()=>$('#title').classList.remove('hide'),
+  train:()=>{const k=S.sel,d=S.sty[k],c=trainCost(k);if(S.coins<c)return toast('Not enough gold!');
+    S.coins-=c;S.cnt.train++;d.xp+=20;while(d.xp>=xpNeed(d.lv)){d.xp-=xpNeed(d.lv);d.lv++;toast(STYLES[k].n+' reached Lv. '+d.lv+'!')}go(cur,1)},
+  race:()=>{weekly();const r=RACE[S.cl];if(!r)return;
+    if(S.sta<1)return toast('No energy! ⚡ refills 1 per minute.');
+    if(pwr()<r[1])return toast('Too slow! Reach Power '+fmt(r[1])+' first.');
+    S.sta--;give(r[2],r[3],r[4]);S.cl++;toast('Stage cleared!');go(cur,1)},
+  use:()=>{const k=S.it,u=ITEMS[k]?.[2];if(!u||!S.inv[k])return;S.inv[k]--;u();norm();toast('Used '+k);go(cur,1)},
+  rebirth:()=>{if(S.lv<REB_LV)return;if(!S.arm){S.arm=1;return go(cur,1)}
+    S=Object.assign(fresh(),{rb:S.rb+1,gems:S.gems,inv:S.inv,name:S.name});save();go('home');bigFx('REBORN!')},
+  evolve:()=>{const e=SD().evo;if(S.stand.lv<e.lv||!S.inv[e.item])return;S.inv[e.item]--;S.stand.name=e.to;S.stand.evo=true;bigFx('EVOLVED!');go(cur,1)},
+  reset:()=>{if(confirm('Reset all progress?')){store.del(KEY);S=fresh();go('home');toast('Progress reset.')}}
+};
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-go],[data-act],[data-sel],[data-tab],[data-up],[data-set],[data-claim],[data-use],[data-menu]');if(!b)return;
+  const d=b.dataset;if(d.menu){toggleMenu();return}toggleMenu(false);fxClick(e,d);
+  if(d.go)go(d.go);
+  else if(d.sel){S.sel=d.sel;go(cur,1)}
+  else if(d.tab){S.tab=d.tab;go(cur,1)}
+  else if(d.up)upSkill(d.up);
+  else if(d.set){const[k,v]=d.set.split(':');S[k]=v;go(cur,1)}
+  else if(d.claim)claim(d.claim);
+  else if(d.use)ACTS.use();
+  else ACTS[d.act]?.();
+});
+
+/* ============ BOOT ============ */
+$('#nav').innerHTML=TABS.map(([id,ic,l])=>`<button data-go="${id}"><i>${ic}</i>${l}</button>`).join('');
+const away=Math.min(Math.floor((Date.now()-S.t)/1000),28800),before=S.coins;
+if(away>5)tick(away);
+VIEWS.home&&($('#view').innerHTML=VIEWS.home());paint();
+if(S.coins-before>0&&away>60)setTimeout(()=>toast('Welcome back! +'+fmt(S.coins-before)+' gold while away'),600);
+</script>
+</body>
+</html>
